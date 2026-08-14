@@ -1,0 +1,47 @@
+---
+- name: Validate Loki credentials when Promtail is enabled
+  ansible.builtin.assert:
+    that:
+      - observability_agent_loki_url | length > 0
+      - observability_agent_loki_user | length > 0
+      - observability_agent_loki_password | length > 0
+    fail_msg: Loki URL/user/password must be supplied by inventory plus a secret backend.
+  no_log: true
+
+- name: Create observability client directories
+  ansible.builtin.file:
+    path: "{{ observability_agent_dir }}"
+    state: directory
+    owner: "{{ observability_agent_owner }}"
+    group: "{{ observability_agent_group }}"
+    mode: "0750"
+  loop:
+    - "{{ observability_agent_monlog_dir }}"
+    - "{{ observability_agent_monlog_dir }}/promtail"
+  loop_control:
+    loop_var: observability_agent_dir
+
+- name: Render observability environment file
+  ansible.builtin.template:
+    src: monlog.env.j2
+    dest: "{{ observability_agent_monlog_dir }}/.env"
+    owner: "{{ observability_agent_owner }}"
+    group: "{{ observability_agent_group }}"
+    mode: "0600"
+  no_log: true
+
+- name: Render observability compose file
+  ansible.builtin.template:
+    src: monlog-compose.yml.j2
+    dest: "{{ observability_agent_monlog_dir }}/compose.yml"
+    owner: "{{ observability_agent_owner }}"
+    group: "{{ observability_agent_group }}"
+    mode: "0640"
+
+- name: Copy Promtail configuration
+  ansible.builtin.copy:
+    src: promtail/promtail.yml
+    dest: "{{ observability_agent_monlog_dir }}/promtail/promtail.yml"
+    owner: "{{ observability_agent_owner }}"
+    group: "{{ observability_agent_group }}"
+    mode: "0640"

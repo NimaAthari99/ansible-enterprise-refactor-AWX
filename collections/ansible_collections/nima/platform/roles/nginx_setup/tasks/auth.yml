@@ -1,0 +1,23 @@
+---
+- name: Validate Nginx basic authentication secret
+  ansible.builtin.assert:
+    that:
+      - nginx_setup_auth_password | length > 0
+    fail_msg: nginx_setup_auth_password must be provided by Vault or an AWX credential.
+  no_log: true
+
+- name: Install htpasswd dependency package
+  ansible.builtin.apt:
+    name: apache2-utils
+    state: present
+
+- name: Create Nginx htpasswd file
+  community.general.htpasswd:
+    path: "{{ nginx_setup_htpasswd_path }}"
+    name: "{{ nginx_setup_auth_user }}"
+    password: "{{ nginx_setup_auth_password }}"
+    owner: root
+    group: www-data
+    mode: "0640"
+  no_log: true
+  notify: Reload Nginx

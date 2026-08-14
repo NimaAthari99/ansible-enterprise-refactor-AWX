@@ -1,0 +1,45 @@
+---
+- name: Validate network configuration input
+  ansible.builtin.assert:
+    that:
+      - linux_network_interfaces | length > 0
+    fail_msg: >-
+      linux_network_interfaces must be explicitly defined. Network changes are intentionally
+      not inferred because guessing interface configuration is an unusually efficient way to lose SSH.
+
+- name: Collect network interface facts
+  ansible.builtin.setup:
+    gather_subset:
+      - network
+
+- name: Verify required network interfaces exist
+  ansible.builtin.assert:
+    that:
+      - linux_network_required_interfaces | difference(ansible_interfaces) | length == 0
+    fail_msg: >-
+      Required interfaces were not all found: {{ linux_network_required_interfaces | join(', ') }}.
+      Available interfaces: {{ ansible_interfaces | join(', ') }}
+  when: linux_network_required_interfaces | length > 0
+
+- name: Check if ifupdown interfaces file exists
+  ansible.builtin.stat:
+    path: /etc/network/interfaces
+  register: linux_network_interfaces_file
+
+- name: Require ifupdown
+  ansible.builtin.assert:
+    that:
+      - linux_network_interfaces_file.stat.exists
+    fail_msg: >-
+      /etc/network/interfaces does not exist. This host may use NetworkManager,
+      systemd-networkd, Netplan, or another network manager.
+
+- name: Install network interfaces configuration
+  ansible.builtin.template:
+    src: interfaces.j2
+    dest: /etc/network/interfaces
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+  notify: Reboot after network configuration

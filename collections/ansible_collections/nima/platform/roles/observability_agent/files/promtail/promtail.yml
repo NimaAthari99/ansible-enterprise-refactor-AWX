@@ -1,0 +1,84 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /var/lib/promtail/positions.yaml
+
+clients:
+  - url: ${LOKI_SCHEME}://${LOKI_URL}/loki/api/v1/push
+    basic_auth:
+      username: ${LOKI_USER}
+      password: ${LOKI_PASS}
+    timeout: 30s
+    batchwait: 1s
+    batchsize: 524288
+    backoff_config:
+      min_period: 500ms
+      max_period: 1m
+      max_retries: 20
+
+scrape_configs:
+  # ==========================================================
+  # Selected system logs
+  # ==========================================================
+  - job_name: system-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: system
+          service_name: system
+          host: ${SERVER_NAME}
+          hostname: ${SERVER_NAME}
+          __path__: /var/log/*.log
+
+  # ==========================================================
+  # Host Nginx logs
+  # ==========================================================
+  - job_name: nginx-host
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx
+          service_name: nginx-host
+          host: ${SERVER_NAME}
+          hostname: ${SERVER_NAME}
+          __path__: /var/log/nginx/*.log
+
+  # ==========================================================
+  # Docker logs
+  # ==========================================================
+  - job_name: docker-containers
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      - source_labels: [__meta_docker_container_state]
+        regex: running
+        action: keep
+      - target_label: host
+        replacement: ${SERVER_NAME}
+      - target_label: hostname
+        replacement: ${SERVER_NAME}
+      - target_label: job
+        replacement: docker
+      - source_labels: [__meta_docker_container_name]
+        regex: '/(.*)'
+        target_label: container
+        replacement: '$1'
+      - source_labels: [__meta_docker_container_id]
+        target_label: container_id
+      - source_labels: [__meta_docker_container_image]
+        target_label: image
+      - source_labels: [__meta_docker_container_label_com_docker_compose_project]
+        target_label: compose_project
+      - source_labels: [__meta_docker_container_label_com_docker_compose_service]
+        target_label: compose_service
+      - source_labels: [__meta_docker_container_label_com_docker_compose_service]
+        regex: '(.+)'
+        target_label: service_name
+        replacement: '$1'
+    pipeline_stages:
+      - docker: {}

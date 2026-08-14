@@ -1,0 +1,16 @@
+# Managed by Ansible - nima.platform.linux_network
+{% for interface in linux_network_interfaces %}
+{% if interface.auto | default(true) %}auto {{ interface.name }}
+{% endif -%}
+{% if interface.allow_hotplug | default(false) %}allow-hotplug {{ interface.name }}
+{% endif -%}
+iface {{ interface.name }} {{ interface.family | default('inet') }} {{ interface.method | default('dhcp') }}
+{% if interface.address is defined %}    address {{ interface.address }}
+{% endif -%}
+{% if interface.gateway is defined %}    gateway {{ interface.gateway }}
+{% endif -%}
+{% if interface.dns_nameservers is defined %}    dns-nameservers {{ interface.dns_nameservers | join(' ') }}
+{% endif -%}
+{% for option in interface.options | default([]) %}    {{ option }}
+{% endfor %}
+{% endfor %}

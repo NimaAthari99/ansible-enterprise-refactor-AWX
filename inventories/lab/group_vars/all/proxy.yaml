@@ -1,0 +1,10 @@
+proxy_env:
+  http_proxy: "{{ platform_http_proxy | default('') }}"
+  https_proxy: "{{ platform_https_proxy | default(platform_http_proxy | default('')) }}"
+
+# Debian Apt Proxy Set
+linux_baseline_manage_apt_proxy: true
+linux_baseline_apt_proxy_address: main.nima.local
+apt_proxy_port1: 10808
+apt_proxy_port2: 12334
+linux_baseline_apt_proxy_port: "{{ apt_proxy_port2 }}"

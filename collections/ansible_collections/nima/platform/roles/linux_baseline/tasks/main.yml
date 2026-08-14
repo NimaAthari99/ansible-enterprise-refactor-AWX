@@ -1,0 +1,62 @@
+---
+- name: Validate supported Linux family
+  ansible.builtin.assert:
+    that:
+      - ansible_os_family == 'Debian'
+    fail_msg: "nima.platform.linux_baseline currently supports Debian-family systems only."
+
+- name: Configure root shell
+  ansible.builtin.import_tasks: bashrc.yml
+  tags: [baseline, shell]
+  when: linux_baseline_manage_root_bashrc | bool
+
+- name: Configure APT mirror
+  ansible.builtin.import_tasks: mirror.yml
+  tags: [baseline, apt]
+  when: linux_baseline_manage_apt_mirror | bool
+
+- name: Configure APT proxy
+  ansible.builtin.import_tasks: apt-proxy.yml
+  tags: [baseline, apt]
+  when: linux_baseline_manage_apt_proxy | bool
+
+- name: Configure resolver
+  ansible.builtin.import_tasks: resolvedconf.yml
+  tags: [baseline, dns]
+
+- name: Manage baseline packages
+  ansible.builtin.import_tasks: packages.yml
+  tags: [baseline, packages]
+
+- name: Configure resource limits
+  ansible.builtin.import_tasks: limits.yml
+  tags: [baseline, tuning]
+
+- name: Apply host hardening
+  ansible.builtin.import_tasks: hardening.yml
+  tags: [baseline, hardening, firewall]
+
+- name: Configure TCP wrappers files
+  ansible.builtin.import_tasks: hosts.yml
+  tags: [baseline, hardening]
+
+- name: Configure auditd
+  ansible.builtin.import_tasks: auditd.yml
+  tags: [baseline, audit]
+
+- name: Configure fstab hardening
+  ansible.builtin.import_tasks: fstab.yml
+  tags: [baseline, hardening]
+
+- name: Configure logging
+  ansible.builtin.import_tasks: journalconf.yml
+  tags: [baseline, logging]
+
+- name: Configure sysctl tuning
+  ansible.builtin.import_tasks: tuning.yml
+  tags: [baseline, tuning]
+
+- name: Install Lynis
+  ansible.builtin.import_tasks: lynis.yml
+  when: linux_baseline_manage_lynis | bool
+  tags: [baseline, audit, lynis]

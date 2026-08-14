@@ -1,0 +1,16 @@
+---
+docker_engine_http_proxy: http://main.nima.local:10808
+docker_engine_https_proxy: "{{ docker_engine_http_proxy }}"
+docker_engine_no_proxy: localhost,127.0.0.1,repo.nima.local
+
+docker_engine_log_max_file: "5"
+docker_engine_log_max_size: "100m"
+docker_engine_registry_mirror: https://repo.nima.local
+
+docker_engine_repo_base_url: https://repo.nima.local/repository/debian-docker
+docker_engine_repo_distribution: trixie
+docker_engine_repo_component: stable
+# Keep this true only if the internal mirror is intentionally unsigned/untrusted.
+docker_engine_repo_allow_insecure: true
+docker_engine_validate_certs: true
+docker_engine_package_state: present

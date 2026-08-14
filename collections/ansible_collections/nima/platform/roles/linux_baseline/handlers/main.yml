@@ -1,0 +1,32 @@
+---
+- name: Restart fail2ban
+  become: true
+  ansible.builtin.service:
+    name: fail2ban
+    state: restarted
+
+# auditd can refuse a direct systemd restart on some distributions; use the service helper.
+- name: Restart auditd
+  become: true
+  ansible.builtin.command:
+    cmd: service auditd restart
+  changed_when: true
+
+- name: Generate auditd rules
+  become: true
+  ansible.builtin.command:
+    cmd: augenrules
+  changed_when: true
+
+- name: Restart systemd-resolved
+  become: true
+  ansible.builtin.service:
+    name: systemd-resolved
+    state: restarted
+  when: ansible_facts.services is not defined or 'systemd-resolved.service' in ansible_facts.services
+
+- name: Restart systemd-journald
+  become: true
+  ansible.builtin.service:
+    name: systemd-journald
+    state: restarted

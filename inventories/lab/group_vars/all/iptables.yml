@@ -1,0 +1,11 @@
+# `iptables` Configuration
+linux_baseline_iptables:
+    network_adapter_access:
+        - lo
+    udp_port_access: []
+    trusted_IP:
+      - 192.168.250.19
+      - 192.168.250.20
+      - 192.168.250.35
+    trusted_IP_range:
+      - 192.168.250.0/24

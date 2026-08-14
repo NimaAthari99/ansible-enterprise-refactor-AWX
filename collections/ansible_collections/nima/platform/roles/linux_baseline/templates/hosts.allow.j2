@@ -1,0 +1,4 @@
+# Managed by Ansible
+{% for entry in linux_baseline_hosts_allow_entries %}
+{{ entry.service | default('sshd') }}: {{ entry.source }}
+{% endfor %}

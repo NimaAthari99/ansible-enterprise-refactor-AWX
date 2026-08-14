@@ -1,0 +1,16 @@
+# Managed by Ansible - nima.platform.nginx_setup
+server {
+    listen {{ nginx_setup_listen_port }};
+    server_name {{ nginx_setup_server_name }};
+    root {{ nginx_setup_root }};
+    index index.html;
+    autoindex on;
+
+    location / {
+{% if nginx_setup_enable_basic_auth | bool %}
+        auth_basic "Restricted";
+        auth_basic_user_file {{ nginx_setup_htpasswd_path }};
+{% endif %}
+        try_files $uri $uri/ =404;
+    }
+}

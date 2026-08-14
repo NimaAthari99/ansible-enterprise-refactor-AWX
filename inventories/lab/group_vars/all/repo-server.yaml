@@ -1,0 +1,28 @@
+---
+
+# project directory
+REPO_DIRE_NAME: /opt/services
+
+# `nexus3`, `gitlab`, and `traefik` Docker Image Address & Version
+NEXUS_IMAGE: sonatype/nexus3
+NEXUS_VERSION: 3.92.2
+TRAEFIK_IMAGE: traefik
+TRAEFIK_VERSION: v3.7
+
+# Domain & Subdomain Difine
+DOMAIN_NAME: nima.local
+TRAEFIK_SUB_DOMAIN: web
+NEXUS_SUB_DOMAIN: repo
+HUB_SUB_DOMAIN: hub
+
+# Password Generate
+# htpasswd -nbs user pass
+# WEB_AUTH_USER moved to Vault-backed service vars
+# TRAEFIK_ACME_EMAIL moved to Vault-backed service vars
+
+# `nexus` Configuration
+# NEXUS_ADMIN_USERNAME moved to Vault-backed service vars
+NEXUS_SERVICE_URL: "https://{{ NEXUS_SUB_DOMAIN }}.{{ DOMAIN_NAME }}"
+# NEXUS_REPO_USERNAME moved to Vault-backed service vars
+# NEXUS_REPO_EMAIL moved to Vault-backed service vars
+DOCKER_REPO_BLOBSTORE: docker

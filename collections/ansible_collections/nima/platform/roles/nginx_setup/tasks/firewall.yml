@@ -1,0 +1,9 @@
+---
+- name: Allow configured source to reach Nginx
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    source: "{{ nginx_setup_firewall_source_cidr }}"
+    destination_port: "{{ nginx_setup_listen_port }}"
+    jump: ACCEPT
+    comment: Ansible Nginx access

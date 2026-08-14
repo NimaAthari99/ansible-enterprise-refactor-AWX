@@ -1,0 +1,171 @@
+# debian.org Bookworm Debian 12
+# bookworm-security
+# Modernized from /etc/apt/sources.list
+Types: deb deb-src
+URIs: http://deb.debian.org/debian-security/
+Suites: bookworm-security
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-bookworm-automatic.gpg
+Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# # ito.gov.ir Bookworm Debian 12
+
+# # bookworm
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: bookworm
+# Components: main contrib non-free non-free-firmware
+# Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+# Trusted: yes
+
+# # bookworm-updates
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: bookworm-updates
+# Components: main contrib non-free non-free-firmware
+# Signed-By:
+# Trusted: yes
+
+# # bookworm-proposed-updates
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: bookworm-proposed-updates
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# # bookworm-backports
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: bookworm-backports
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# # bookworm-backports-sloppy
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: bookworm-backports-sloppy
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# # iut.ac.ir Bookworm Debian 12
+
+# # NOT WORKS NOW 14050111
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: http://repo.iut.ac.ir/debian/
+# Suites: bookworm
+# Components: main
+# Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+# Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# jamko.ir Bookworm Debian 12
+
+# Modernized from /etc/apt/sources.list
+Types: deb
+URIs: https://debian.jamko.ir/
+Suites: bookworm
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-bookworm-automatic.gpg
+Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# # parspack.com Bookworm Debian 12
+
+# # Modernized from /etc/apt/sources.list
+# Types: deb deb-src
+# URIs: http://debian.parspack.com/debian/
+# Suites: bookworm
+# Components: main contrib non-free non-free-firmware
+# Signed-By: /usr/share/keyrings/debian-archive-bookworm-automatic.gpg
+# Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# # shatel.ir Bookworm Debian 12
+
+# # bookworm
+# # Modernized from /etc/apt/sources.list
+# Types: deb deb-src
+# URIs: http://mirror.shatel.ir/debian
+# Suites: bookworm 
+# Components: main contrib non-free non-free-firmware
+# Signed-By: /usr/share/keyrings/debian-archive-bookworm-automatic.gpg
+# Trusted: yes
+
+# # bookworm-security
+# # Modernized from /etc/apt/sources.list
+# Types: deb deb-src
+# URIs: http://mirror.shatel.ir/debian-security/
+# Suites: bookworm-security
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# # bookworm-updates
+# # Modernized from /etc/apt/sources.list
+# Types: deb-src
+# URIs: http://mirror.shatel.ir/debian/
+# Suites: bookworm-updates
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# # bookworm-backports
+# # Modernized from /etc/apt/sources.list
+# Types: deb-src
+# URIs: http://mirror.shatel.ir/debian/
+# Suites: bookworm-backports
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# # iranserver.com Bookworm Debian 12
+
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://mirror.iranserver.com/debian/
+# Suites: bookworm
+# Components: main contrib non-free
+# Signed-By: /usr/share/keyrings/debian-archive-bookworm-automatic.gpg
+# Trusted: yes
+
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://mirror.iranserver.com/debian/
+# Suites: bookworm-updates
+# Components: main contrib non-free
+# Signed-By: 
+# Trusted: yes
+
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://mirror.iranserver.com/debian-security/
+# Suites: bookworm-security
+# Components: main contrib non-free
+# Signed-By: 
+# Trusted: yes
+
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://mirror.iranserver.com/debian/
+# Suites: bookworm-backports
+# Components: main contrib non-free
+# Signed-By: 
+# Trusted: yes

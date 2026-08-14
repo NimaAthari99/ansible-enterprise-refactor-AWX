@@ -1,0 +1,27 @@
+---
+
+- name: Remove `/tmp` From `/etc/fstab` Without Unmounting
+  ansible.posix.mount:
+    path: /tmp
+    state: absent_from_fstab
+  register: linux_baseline_tmp_fstab_result
+  tags:
+    - fstab-config
+
+- name: Reload Systemd After `/etc/fstab` Change
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: linux_baseline_tmp_fstab_result.changed
+  tags:
+    - fstab-config
+
+- name: Remove `floppy` From `Fstab`
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    state: absent
+    regexp: '^.*floppy.*$'
+  tags:
+    - fstab-config
+
+...

@@ -1,0 +1,15 @@
+---
+observability_agent_method: disabled
+observability_agent_base_dir: /opt/services
+observability_agent_monlog_dir: "{{ observability_agent_base_dir }}/monlog-client"
+observability_agent_owner: root
+observability_agent_group: root
+observability_agent_domain: example.invalid
+observability_agent_loki_host: logs.example.invalid
+observability_agent_loki_ip: 127.0.0.1
+observability_agent_loki_scheme: http
+observability_agent_loki_url: logs.example.invalid:3100
+observability_agent_loki_user: ""
+observability_agent_loki_password: ""
+observability_agent_registry: registry.example.invalid
+observability_agent_hub_registry: hub.example.invalid

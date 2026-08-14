@@ -1,0 +1,15 @@
+---
+nginx_setup_server_name: "{{ ansible_hostname }}.nima.local"
+nginx_setup_root: "/var/www/html/{{ ansible_hostname }}"
+nginx_setup_listen_port: 80
+nginx_setup_enable_basic_auth: true
+nginx_setup_htpasswd_path: "/etc/nginx/conf.d/{{ ansible_hostname }}.htpasswd"
+nginx_setup_auth_user: admin
+nginx_setup_auth_password: "{{ secret_nginx_auth_password | default('') }}"
+nginx_setup_sample_files:
+  - name: test1.txt
+    content: "Hi dear friend! I'm admin. It's my first test file."
+  - name: helloworld.txt
+    content: "Hello World!"
+nginx_setup_manage_firewall: true
+nginx_setup_firewall_source_cidr: 192.168.250.20/32

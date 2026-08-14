@@ -1,0 +1,131 @@
+---
+
+- name: Set Debian Audit Grub Cmdline
+  become: true
+  ansible.builtin.lineinfile:
+    line: 'GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX {{ linux_baseline_grub_audit_cmdline }} {{ linux_baseline_grub_audit_backlog_cmdline }}"'
+    dest: /etc/default/grub.d/99-hardening-audit.cfg
+    state: present
+    create: true
+    mode: 0755
+    owner: root
+    group: root
+  tags:
+    - auditd-config
+    - grub
+
+- name: Set Audit `action_mail_acct`
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: "^action_mail_acct ="
+    line: "action_mail_acct = {{ linux_baseline_auditd_action_mail_acct }}"
+    dest: /etc/audit/auditd.conf
+    mode: 0640
+    state: present
+    create: 'no'
+  tags: auditd-config
+
+- name: Set Audit `admin_space_left_action`
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: "^admin_space_left_action = "
+    line: "admin_space_left_action = {{ linux_baseline_auditd_admin_space_left_action }}"
+    dest: /etc/audit/auditd.conf
+    mode: 0640
+    state: present
+    create: 'no'
+  tags: auditd-config
+
+- name: Set Audit `disk_error_action`
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: "^disk_error_action ="
+    line: "disk_error_action = {{ linux_baseline_auditd_disk_error_action }}"
+    dest: /etc/audit/auditd.conf
+    mode: 0640
+    state: present
+    create: 'no'
+  tags: auditd-config
+
+- name: Set Audit `disk_full_action`
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: "^disk_full_action ="
+    line: "disk_full_action = {{ linux_baseline_auditd_disk_full_action }}"
+    dest: /etc/audit/auditd.conf
+    mode: 0640
+    state: present
+    create: 'no'
+  tags: auditd-config
+
+- name: Set Audit `max_log_file`
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: "^max_log_file ="
+    line: "max_log_file = {{ linux_baseline_auditd_max_log_file }}"
+    dest: /etc/audit/auditd.conf
+    mode: 0640
+    state: present
+    create: 'no'
+  tags: auditd-config
+
+- name: Set Audit `max_log_file_action`
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: "^max_log_file_action ="
+    line: "max_log_file_action = {{ linux_baseline_auditd_max_log_file_action }}"
+    dest: /etc/audit/auditd.conf
+    mode: 0640
+    state: present
+    create: 'no'
+  tags: auditd-config
+
+- name: Set Audit `num_logs`
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: "^num_logs ="
+    line: "num_logs = {{ linux_baseline_auditd_num_logs }}"
+    dest: /etc/audit/auditd.conf
+    mode: 0640
+    state: present
+    create: 'no'
+  tags: auditd-config
+
+- name: Set Audit `space_left`
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: "^space_left ="
+    line: "space_left = {{ linux_baseline_auditd_space_left }}"
+    dest: /etc/audit/auditd.conf
+    mode: 0640
+    state: present
+    create: 'no'
+  tags: auditd-config
+
+- name: Set Audit `space_left_action`
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: "^space_left_action ="
+    line: "space_left_action = {{ linux_baseline_auditd_space_left_action }}"
+    dest: /etc/audit/auditd.conf
+    mode: 0640
+    state: present
+    create: 'no'
+  tags: auditd-config
+
+- name: Audit Rules
+  become: true
+  ansible.builtin.template:
+    src: hardening.rules.j2
+    dest: /etc/audit/rules.d/hardening.rules
+    backup: true
+    mode: 0600
+    owner: root
+    group: root
+  when: linux_baseline_auditd_apply_audit_rules | bool
+  tags: auditd-config
+  notify:
+    - Generate auditd rules
+    - Restart auditd
+
+...

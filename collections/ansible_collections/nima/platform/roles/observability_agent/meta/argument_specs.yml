@@ -1,0 +1,19 @@
+---
+argument_specs:
+  main:
+    short_description: Configure supported observability clients.
+    options:
+      observability_agent_method: {type: str, choices: [disabled, prom, elk], default: disabled}
+      observability_agent_base_dir: {type: str, default: /opt/services}
+      observability_agent_monlog_dir: {type: str}
+      observability_agent_owner: {type: str, default: root}
+      observability_agent_group: {type: str, default: root}
+      observability_agent_domain: {type: str}
+      observability_agent_loki_host: {type: str}
+      observability_agent_loki_ip: {type: str}
+      observability_agent_loki_scheme: {type: str, choices: [http, https], default: http}
+      observability_agent_loki_url: {type: str}
+      observability_agent_loki_user: {type: str}
+      observability_agent_loki_password: {type: str, no_log: true}
+      observability_agent_registry: {type: str}
+      observability_agent_hub_registry: {type: str}

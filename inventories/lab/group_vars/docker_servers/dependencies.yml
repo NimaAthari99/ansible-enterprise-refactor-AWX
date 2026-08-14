@@ -1,0 +1,6 @@
+---
+docker_engine_dependencies:
+  - ca-certificates
+  - curl
+  - gnupg
+  - git

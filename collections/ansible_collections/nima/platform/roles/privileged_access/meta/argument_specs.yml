@@ -1,0 +1,9 @@
+---
+argument_specs:
+  main:
+    short_description: Configure explicit passwordless sudo users.
+    options:
+      privileged_access_sudo_users:
+        type: list
+        elements: str
+        default: []

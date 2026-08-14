@@ -1,0 +1,27 @@
+---
+legacy_to_collection:
+  roles/preparing_server: nima.platform.linux_baseline
+  roles/my_labs-preparing_server: nima.platform.linux_network
+  roles/superuser: nima.platform.privileged_access
+  roles/ssh_port_migration: nima.platform.ssh_bootstrap
+  roles/docker_servers: nima.platform.docker_engine
+  roles/nginx_servers: nima.platform.nginx_setup
+  roles/observability_clients: nima.platform.observability_agent
+
+legacy_playbooks_to_current:
+  playbook/preparing.yaml:
+    - playbooks/bootstrap.yml
+    - playbooks/baseline.yml
+  playbook/docker_setup.yaml:
+    - playbooks/docker.yml
+  playbook/nginx_servers_setup.yaml:
+    - playbooks/nginx.yml
+  playbook/observability_clients.yaml:
+    - playbooks/observability.yml
+  playbook/setup_docker_node.yaml:
+    - playbooks/bootstrap.yml
+    - playbooks/baseline.yml
+    - playbooks/docker.yml
+  playbook/my_labs.yaml:
+    - playbooks/network.yml
+    - playbooks/bootstrap.yml

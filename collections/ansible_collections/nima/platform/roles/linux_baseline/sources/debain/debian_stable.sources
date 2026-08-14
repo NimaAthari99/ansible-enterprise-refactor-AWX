@@ -1,0 +1,69 @@
+# # ito.gov.ir Stable Debian Stable***
+
+# # stable
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: stable
+# Components: main contrib non-free non-free-firmware
+# Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+# Trusted: yes
+
+# # stable-updates
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: stable-updates
+# Components: main contrib non-free non-free-firmware
+# Signed-By:
+# Trusted: yes
+
+# # stable-proposed-updates
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: stable-proposed-updates
+# Components: main contrib non-free non-free-firmware
+# Signed-By:
+# Trusted: yes
+
+# # stable-backports
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: stable-backports
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# jamko.ir Stable Debian Stable
+
+# Modernized from /etc/apt/sources.list
+Types: deb
+URIs: https://debian.jamko.ir/
+Suites: stable
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+Trusted: yes
+
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://debian.jamko.ir/
+# Suites: stable-updates
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# # parspack.com Stable Debian Stable
+
+# # Modernized from /etc/apt/sources.list
+# Types: deb deb-src
+# URIs: http://debian.parspack.com/debian/
+# Suites: stable
+# Components: main contrib non-free non-free-firmware
+# Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+# Trusted: yes

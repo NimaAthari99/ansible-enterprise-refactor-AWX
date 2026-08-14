@@ -1,0 +1,23 @@
+---
+- name: Ensure Nginx document root exists
+  ansible.builtin.file:
+    path: "{{ nginx_setup_root }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0755"
+
+- name: Deploy Nginx virtual host configuration
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "/etc/nginx/conf.d/{{ inventory_hostname }}.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload Nginx
+
+- name: Remove default Nginx site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Reload Nginx

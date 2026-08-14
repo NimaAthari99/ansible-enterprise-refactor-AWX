@@ -1,0 +1,27 @@
+---
+
+- name: Configure `limits.conf` File
+  become: true
+  ansible.builtin.template:
+    src: limits.conf.j2
+    dest: /etc/security/limits.conf
+    backup: 'yes'
+    mode: 0644
+    owner: root
+    group: root
+  tags:
+    - limits-config
+
+- name: Configure `coredump.conf` File
+  become: true
+  ansible.builtin.template:
+    src: coredump.conf.j2
+    dest: /etc/systemd/coredump.conf
+    backup: 'yes'
+    mode: 0644
+    owner: root
+    group: root
+  tags:
+    - limits-config
+    - coredump-config
+...

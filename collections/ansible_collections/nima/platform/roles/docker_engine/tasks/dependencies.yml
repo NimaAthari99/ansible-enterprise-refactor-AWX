@@ -1,0 +1,8 @@
+---
+- name: Install Docker repository prerequisites
+  become: true
+  ansible.builtin.apt:
+    name: "{{ docker_engine_dependencies }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600

@@ -1,0 +1,16 @@
+---
+argument_specs:
+  main:
+    short_description: Configure classic ifupdown network interfaces.
+    options:
+      linux_network_required_interfaces:
+        type: list
+        elements: str
+        default: []
+      linux_network_interfaces:
+        type: list
+        elements: dict
+        default: []
+      linux_network_reboot_on_change:
+        type: bool
+        default: true

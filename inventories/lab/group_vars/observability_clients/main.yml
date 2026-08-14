@@ -1,0 +1,11 @@
+---
+observability_agent_base_dir: /opt/services
+observability_agent_domain: nima.local
+observability_agent_loki_scheme: http
+observability_agent_loki_url: logs-1.nima.local:3100
+observability_agent_loki_user: lokiadmin
+observability_agent_loki_password: "{{ secret_loki_password | default('') }}"
+observability_agent_loki_host: logs-1.nima.local
+observability_agent_loki_ip: 192.168.250.43
+observability_agent_registry: registry.nima.local
+observability_agent_hub_registry: hub.nima.local

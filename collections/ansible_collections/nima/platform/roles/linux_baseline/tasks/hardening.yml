@@ -1,0 +1,88 @@
+---
+
+- name: Gather Service Facts
+  ansible.builtin.service_facts:
+  tags:
+  - hardening
+  - ufw-config
+
+- name: Stop And Disable `ufw` Service
+  ansible.builtin.service:
+    name: ufw
+    state: stopped
+    enabled: no
+  tags:
+  - hardening
+  - ufw-config
+  when:
+    - "'ufw.service' in ansible_facts.services"
+    - "ansible_facts.services['ufw.service'].status != 'not-found'"
+
+- name: Stop and Disable `postfix` Service
+  ansible.builtin.systemd:
+    name: postfix
+    state: stopped
+    enabled: false
+  when:
+    - "'postfix.service' in ansible_facts.services"
+    - ansible_facts.services['postfix.service'].status | default('not-found') != 'not-found'
+  tags:
+  - hardening
+  - postfix-config
+
+- name: Make Timout Configuration File
+  ansible.builtin.template:
+    src: timeout.j2
+    dest: /etc/profile.d/timeout-settings.sh
+    owner: root
+    group: root
+    mode: '0644'
+  tags:
+  - hardening
+  - timeout-config
+
+- name: Set Platform Timezone
+  community.general.timezone:
+    name: "{{ linux_baseline_timezone }}"
+
+  tags:
+  - hardening
+  - time-config
+
+- name: Make `iptables` Configuration File
+  ansible.builtin.template:
+    src: iptables.j2
+    dest: /etc/iptables/rules.v4
+    owner: root
+    group: root
+    mode: '0600'
+  tags:
+  - hardening
+  - iptables-config
+  when: linux_baseline_manage_iptables | bool
+
+- name: Restore `iptables` state from a file
+  community.general.iptables_state:
+    state: restored
+    path: "{{ linux_baseline_iptables_rules_file }}"
+    noflush: false
+    wait: 10    # wait for lock
+  become: true
+  tags:
+  - hardening
+  - iptables-config
+  when: linux_baseline_manage_iptables | bool
+
+- name: Make `fail2ban` Configuration File
+  ansible.builtin.template:
+    src: fail2ban.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart fail2ban
+  tags:
+  - hardening
+  - fail2ban-config
+
+...

@@ -1,0 +1,24 @@
+---
+
+- name: Add The `br_netfilter` Module
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+  tags:
+    - tuning
+    - sysctl-config
+
+- name: Change Various `sysctl-settings`
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    state: present
+    value: "{{ item.value }}"
+    sysctl_file: /etc/sysctl.d/MeCan.conf
+    reload: yes
+    ignoreerrors: yes
+  with_dict: '{{ linux_baseline_sysctl }}'
+  tags:
+    - tuning
+    - sysctl-config
+
+...

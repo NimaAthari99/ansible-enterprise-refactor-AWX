@@ -1,0 +1,6 @@
+Acquire::http::Proxy "http://{{ linux_baseline_apt_proxy_address }}:{{ linux_baseline_apt_proxy_port }}";
+Acquire::https::Proxy "http://{{ linux_baseline_apt_proxy_address }}:{{ linux_baseline_apt_proxy_port }}";
+{% if linux_baseline_manage_apt_mirror | bool %}
+Acquire::http::Proxy::{{ linux_baseline_mirror_domain_name }} DIRECT;
+Acquire::https::Proxy::{{ linux_baseline_mirror_domain_name }} DIRECT;
+{% endif %}

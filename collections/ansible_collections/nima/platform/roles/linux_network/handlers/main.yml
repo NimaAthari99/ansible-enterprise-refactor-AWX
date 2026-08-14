@@ -1,0 +1,20 @@
+---
+- name: Reboot after network configuration
+  ansible.builtin.reboot:
+    msg: Reboot initiated by Ansible after network configuration update
+    pre_reboot_delay: 5
+    post_reboot_delay: 10
+    connect_timeout: 10
+    reboot_timeout: 600
+    test_command: whoami
+  when: linux_network_reboot_on_change | bool
+  listen: Reboot after network configuration
+
+- name: Wait for Ansible connection after reboot
+  ansible.builtin.wait_for_connection:
+    delay: 5
+    sleep: 5
+    connect_timeout: 10
+    timeout: 300
+  when: linux_network_reboot_on_change | bool
+  listen: Reboot after network configuration

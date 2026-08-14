@@ -1,0 +1,13 @@
+---
+
+- name: Set `/root/.bashrc`
+  ansible.builtin.template:
+    src: ".bashrc.j2"
+    dest: /root/.bashrc
+    mode: '0644'
+    owner: root
+    group: root
+  tags:
+    - bashrc-config
+
+...

@@ -1,0 +1,162 @@
+# `dns` Variables
+linux_baseline_domain_name: nima.local
+linux_baseline_dns: 192.168.250.1 172.20.10.1 192.168.56.1 8.8.8.8 1.1.1.1
+linux_baseline_fallback_dns: 9.9.9.9 4.2.2.4
+linux_baseline_dnssec: allow-downgrade
+linux_baseline_dns_over_tls: opportunistic
+
+# Name Servers
+linux_baseline_nameservers:
+    - 192.168.250.1
+    - 192.168.250.31
+    - 10.0.0.1
+    - 192.168.56.1
+
+# `Hosts` Variables
+linux_baseline_hosts_entries:
+    - { ip: 192.168.250.19, names: [main.nima.local] }
+    - { ip: 192.168.250.19, names: [main.nima.local] }
+    - { ip: 192.168.250.20, names: [main.nima.local] }
+    - {
+        ip: 192.168.250.31,
+        names: [
+                tools-server-1.nima.local, tools-1.nima.local,
+                web-tools-server-1.nima.local,
+                object-tools-server-1.nima.local,
+                api-object-tools-server-1.nima.local,
+                repo.nima.local, hub.nima.local, registry.nima.local,
+                ca.nima.local,
+                quay.nima.local, k8s.nima.local
+                ]
+        }
+    - {
+        ip: 192.168.250.32,
+        names: [
+                backup-server-1.nima.local, tools2.nima.local,
+                web-backup-server-1.nima.local,
+                object-backup-server-1.nima.local,
+                api-object-backup-server-1.nima.local
+                ]
+        }
+    - {
+        ip: 192.168.250.33,
+        names: [
+                repo-server-1.nima.local, repo-2.nima.local,
+                git.nima.local, reg.nima.local
+                ]
+        }
+    - { ip: 192.168.250.34, names: [runner-server-1.nima.local] }
+    - { ip: 192.168.250.35, names: [awx-server-1.nima.local awx.nima.local awx1.nima.local ansible-1.nima.local] }
+    - {
+        ip: 192.168.250.41,
+        names: [
+                elk-server-1.nima.local, elk-1.nima.local,
+                web-elk-server-1.nima.local,
+                fleet-observability.nima.local,
+                beats-observability.nima.local,
+                kibana-observability.nima.local,
+                es-observability.nima.local
+                ]
+        }
+    - {
+        ip: 192.168.250.42,
+        names: [
+                elk-server-2.nima.local, elk-2.nima.local,
+                web-elk-server-2.nima.local,
+                fleet-2-observability.nima.local,
+                beats-2-observability.nima.local,
+                kibana-2-observability.nima.local,
+                es-2-observability.nima.local,
+                logstash-2-observability.nima.local
+                ]
+        }
+    - {
+        ip: 192.168.250.43,
+        names: [
+                monlog-server-1.nima.local,
+                logs-1.nima.local,
+                prometheus.nima.local,
+                web-monlog-server-1.nima.local,
+                metrics-observability.nima.local,
+                grafana-observability.nima.local,
+                alerts-observability.nima.local,
+                pushgw-observability.nima.local
+                ]
+        }
+    - {
+        ip: 192.168.250.44,
+        names: [
+                monlog-server-2.nima.local,
+                prometheus-2.nima.local,
+                web-monlog-server-2.nima.local,
+                metrics-2-observability.nima.local,
+                grafana-2-observability.nima.local,
+                alerts-2-observability.nima.local,
+                pushgw-2-observability.nima.local
+                ]
+        }
+    - {
+        ip: 192.168.250.51,
+        names: [
+                foo-server-1.nima.local,
+                node-foo-server-1.nima.local,
+                pod-foo-server-1.nima.local,
+                node-foo-server-1.nima.local
+                ]
+        }
+    - {
+        ip: 192.168.250.52,
+        names: [
+                bar-server-1.nima.local,
+                node-bar-server-1.nima.local,
+                pod-bar-server-1.nima.local,
+                node-bar-server-1.nima.local
+                ]
+        }
+    - {
+        ip: 192.168.250.61,
+        names: [
+                nginx-server-1.nima.local, nginx-1.nima.local,
+                web-server-1.nima.local, web1.nima.local, web-1.nima.local,
+                pod-web-server-1.nima.local, pod-nginx-server-1.nima.local,
+                node-web-server-1.nima.local, node-nginx-server-1.nima.local,
+                ]
+        }
+    - {
+        ip: 192.168.250.62,
+        names: [
+                nginx-server-2.nima.local, nginx-2.nima.local,
+                web-server-2.nima.local, web2.nima.local, web-2.nima.local,
+                pod-web-server-2.nima.local, pod-nginx-server-2.nima.local,
+                node-web-server-2.nima.local, node-nginx-server-2.nima.local
+                ]
+        }
+    - {
+        ip: 192.168.250.63,
+        names: [
+                nginx-server-3.nima.local,
+                web-server-3.nima.local, web3.nima.local, web-3.nima.local,
+                apache2-server-1.nima.local, apache2-1.nima.local,
+                pod-web-server-3.nima.local, pod-nginx-server-3.nima.local,
+                node-web-server-3.nima.local, node-nginx-server-3.nima.local
+                ]
+        }
+    - {
+        ip: 192.168.250.64,
+        names: [
+                nginx-server-4.nima.local,
+                web-server-4.nima.local, web4.nima.local, web-4.nima.local,
+                traefik-server-1.nima.local, traefik-1.nima.local,
+                pod-web-server-4.nima.local, pod-nginx-server-4.nima.local,
+                node-web-server-4.nima.local, node-nginx-server-4.nima.local
+                ]
+        }
+    - {
+        ip: 192.168.250.65,
+        names: [
+                nginx-server-5.nima.local,
+                web-server-5.nima.local,
+                web5.nima.local, web-5.nima.local,
+                traefik-server-1.nima.local,
+                pod-web-server-5.nima.local, pod-nginx-server-5.nima.local,
+                node-web-server-5.nima.local, node-nginx-server-5.nima.local] }

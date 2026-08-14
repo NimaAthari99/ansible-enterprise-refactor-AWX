@@ -1,0 +1,11 @@
+---
+- name: Create Nginx sample content files
+  ansible.builtin.copy:
+    dest: "{{ nginx_setup_root }}/{{ nginx_setup_sample_file.name }}"
+    content: "{{ nginx_setup_sample_file.content }}"
+    owner: www-data
+    group: www-data
+    mode: "0644"
+  loop: "{{ nginx_setup_sample_files }}"
+  loop_control:
+    loop_var: nginx_setup_sample_file

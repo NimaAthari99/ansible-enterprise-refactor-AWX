@@ -1,0 +1,15 @@
+---
+argument_specs:
+  main:
+    short_description: Install and configure Nginx.
+    options:
+      nginx_setup_server_name: {type: str}
+      nginx_setup_root: {type: str}
+      nginx_setup_listen_port: {type: int, default: 80}
+      nginx_setup_enable_basic_auth: {type: bool, default: false}
+      nginx_setup_htpasswd_path: {type: str}
+      nginx_setup_auth_user: {type: str}
+      nginx_setup_auth_password: {type: str, no_log: true}
+      nginx_setup_sample_files: {type: list, elements: dict, default: []}
+      nginx_setup_manage_firewall: {type: bool, default: false}
+      nginx_setup_firewall_source_cidr: {type: str}

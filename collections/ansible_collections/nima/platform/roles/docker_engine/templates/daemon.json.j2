@@ -1,0 +1,8 @@
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-file": "{{ docker_engine_log_max_file }}",
+    "max-size": "{{ docker_engine_log_max_size }}"
+  }{% if docker_engine_registry_mirror | length > 0 %},
+  "registry-mirrors": ["{{ docker_engine_registry_mirror }}"]{% endif %}
+}

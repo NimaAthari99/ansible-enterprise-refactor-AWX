@@ -1,0 +1,73 @@
+---
+
+
+- name: Lynis | Clone `Lynis` from GitHub
+  ansible.builtin.git:
+    repo: https://github.com/CISOfy/lynis.git
+    dest: /opt/lynis
+    version: "{{ linux_baseline_lynis_git_version }}"
+    depth: 1
+    force: true
+    update: true
+  tags: lynis-config-config
+
+- name: Lynis | Set base ownership
+  ansible.builtin.file:
+    path: /opt/lynis
+    owner: root
+    group: root
+    recurse: true
+  tags: lynis-config-config
+
+- name: Lynis | Set directory permissions (755)
+  ansible.builtin.file:
+    path: /opt/lynis
+    mode: '0755'
+    recurse: true
+  tags: lynis-config
+
+- name: Lynis | Fix strict permissions for `include/` directory (critical)
+  ansible.builtin.shell: |
+    find /opt/lynis/include -type d -exec chmod 755 {} \;
+    find /opt/lynis/include -type f -exec chmod 640 {} \;
+  args:
+    executable: /bin/bash
+  tags: lynis-config
+
+- name: Lynis | Fix strict permissions for `db/` directory
+  ansible.builtin.shell: |
+    find /opt/lynis/db -type d -exec chmod 755 {} \;
+    find /opt/lynis/db -type f -exec chmod 644 {} \;
+  args:
+    executable: /bin/bash
+  tags: lynis-config
+
+- name: Lynis | Make main lynis script executable
+  ansible.builtin.file:
+    path: /opt/lynis/lynis
+    mode: '0755'
+  tags: lynis-config
+
+- name: Lynis | Create wrapper script for easy execution
+  ansible.builtin.copy:
+    dest: /usr/local/bin/lynis
+    mode: '0755'
+    owner: root
+    group: root
+    content: |
+      #!/bin/bash
+      cd /opt/lynis && exec ./lynis "$@"
+  tags: lynis-config
+
+- name: Lynis | Verify installation
+  ansible.builtin.command: /usr/local/bin/lynis show version
+  changed_when: false
+  register: linux_baseline_lynis_version_result
+  tags: lynis-config
+
+- name: Lynis | Show installed version
+  ansible.builtin.debug:
+    msg: "✅ Lynis installed successfully - Version: {{ linux_baseline_lynis_version_result.stdout }}"
+  tags: lynis-config
+
+...

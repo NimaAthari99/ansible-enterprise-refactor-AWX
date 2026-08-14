@@ -1,0 +1,9 @@
+---
+- name: Apply Linux baseline
+  hosts: "{{ target_hosts | default('managed_linux') }}"
+  gather_facts: true
+  become: true
+  serial: "{{ rollout_batch_size | default('20%') }}"
+  roles:
+    - role: nima.platform.linux_baseline
+      tags: [baseline]

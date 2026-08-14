@@ -1,0 +1,51 @@
+---
+- name: Ensure Docker configuration directory exists
+  become: true
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configure Docker daemon
+  become: true
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Docker
+
+- name: Ensure Docker systemd drop-in directory exists
+  become: true
+  ansible.builtin.file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configure Docker service proxy
+  become: true
+  ansible.builtin.template:
+    src: proxy.conf.j2
+    dest: /etc/systemd/system/docker.service.d/proxy.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Restart Docker
+  when: docker_engine_http_proxy | length > 0 or docker_engine_https_proxy | length > 0
+
+- name: Remove Docker service proxy when disabled
+  become: true
+  ansible.builtin.file:
+    path: /etc/systemd/system/docker.service.d/proxy.conf
+    state: absent
+  notify:
+    - Reload systemd
+    - Restart Docker
+  when: docker_engine_http_proxy | length == 0 and docker_engine_https_proxy | length == 0

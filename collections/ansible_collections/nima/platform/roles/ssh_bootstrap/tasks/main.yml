@@ -1,0 +1,164 @@
+---
+- name: Ensure user SSH directory exists
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.ssh"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0700"
+  when: ssh_bootstrap_manage_user_authorized_keys | bool
+
+- name: Ensure root SSH directory exists
+  ansible.builtin.file:
+    path: /root/.ssh
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  when: ssh_bootstrap_manage_root_authorized_keys | bool
+
+- name: Validate authorized keys source configuration
+  ansible.builtin.assert:
+    that:
+      - ssh_bootstrap_authorized_keys_url | length > 0
+    fail_msg: >-
+      ssh_bootstrap_authorized_keys_url must be set when authorized_keys management is enabled.
+  when:
+    - ssh_bootstrap_manage_user_authorized_keys | bool or ssh_bootstrap_manage_root_authorized_keys | bool
+
+- name: Download authorized keys for remote user
+  ansible.builtin.get_url:
+    url: "{{ ssh_bootstrap_authorized_keys_url }}"
+    dest: "/home/{{ ansible_user }}/.ssh/authorized_keys"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0600"
+    url_username: "{{ ssh_bootstrap_authorized_keys_url_username if ssh_bootstrap_authorized_keys_url_username | length > 0 else omit }}"
+    url_password: "{{ ssh_bootstrap_authorized_keys_url_password if ssh_bootstrap_authorized_keys_url_password | length > 0 else omit }}"
+    force: true
+    validate_certs: "{{ ssh_bootstrap_authorized_keys_validate_certs }}"
+    timeout: 30
+  register: ssh_bootstrap_user_keys_download
+  until: ssh_bootstrap_user_keys_download is succeeded
+  retries: 3
+  delay: 5
+  no_log: true
+  when: ssh_bootstrap_manage_user_authorized_keys | bool
+
+- name: Download authorized keys for root
+  ansible.builtin.get_url:
+    url: "{{ ssh_bootstrap_authorized_keys_url }}"
+    dest: /root/.ssh/authorized_keys
+    owner: root
+    group: root
+    mode: "0600"
+    url_username: "{{ ssh_bootstrap_authorized_keys_url_username if ssh_bootstrap_authorized_keys_url_username | length > 0 else omit }}"
+    url_password: "{{ ssh_bootstrap_authorized_keys_url_password if ssh_bootstrap_authorized_keys_url_password | length > 0 else omit }}"
+    force: true
+    validate_certs: "{{ ssh_bootstrap_authorized_keys_validate_certs }}"
+    timeout: 30
+  register: ssh_bootstrap_root_keys_download
+  until: ssh_bootstrap_root_keys_download is succeeded
+  retries: 3
+  delay: 5
+  no_log: true
+  when: ssh_bootstrap_manage_root_authorized_keys | bool
+
+- name: Copy SSH banner
+  ansible.builtin.copy:
+    src: ssh_banner
+    dest: /etc/issue
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Create SSH socket override directory on Ubuntu
+  ansible.builtin.file:
+    path: /etc/systemd/system/ssh.socket.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  when: ansible_distribution == "Ubuntu"
+
+- name: Configure SSH socket port on Ubuntu
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/ssh.socket.d/override.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [Socket]
+      ListenStream=
+      ListenStream={{ ssh_bootstrap_port }}
+  register: ssh_bootstrap_socket_override
+  when: ansible_distribution == "Ubuntu"
+
+- name: Reload systemd configuration after SSH socket change
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ssh_bootstrap_socket_override is changed
+
+- name: Check whether UFW exists
+  ansible.builtin.stat:
+    path: /usr/sbin/ufw
+  register: ssh_bootstrap_ufw_binary
+
+- name: Open new SSH port in UFW
+  community.general.ufw:
+    rule: allow
+    port: "{{ ssh_bootstrap_port }}"
+    proto: tcp
+  when: ssh_bootstrap_ufw_binary.stat.exists
+
+- name: Open new SSH port in iptables
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{ ssh_bootstrap_port }}"
+    jump: ACCEPT
+    comment: Ansible SSH migration
+  when: not ssh_bootstrap_ufw_binary.stat.exists
+
+- name: Deploy SSH daemon configuration
+  ansible.builtin.template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: "0600"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Restart SSH service
+
+- name: Flush SSH service handler
+  ansible.builtin.meta: flush_handlers
+
+- name: Restart SSH socket on Ubuntu
+  ansible.builtin.systemd_service:
+    name: ssh.socket
+    state: restarted
+    enabled: true
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ssh_bootstrap_socket_override is changed
+
+- name: Wait for the new SSH port from the controller
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host | default(inventory_hostname) }}"
+    port: "{{ ssh_bootstrap_port }}"
+    timeout: 60
+    state: started
+  delegate_to: localhost
+  become: false
+
+- name: Switch connection to the new SSH port
+  ansible.builtin.set_fact:
+    ansible_port: "{{ ssh_bootstrap_port }}"
+
+- name: Reset SSH connection
+  ansible.builtin.meta: reset_connection
+
+- name: Verify connection on the new SSH port
+  ansible.builtin.ping:

@@ -1,0 +1,72 @@
+---
+- name: Ensure APT keyring directory exists
+  become: true
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configure insecure APT policy when explicitly requested
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/99-nima-docker-insecure
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      Acquire::AllowInsecureRepositories "true";
+      Acquire::AllowDowngradeToInsecureRepositories "true";
+      APT::Get::AllowUnauthenticated "true";
+  when: docker_engine_repo_allow_insecure | bool
+
+- name: Remove insecure APT policy when not requested
+  become: true
+  ansible.builtin.file:
+    path: /etc/apt/apt.conf.d/99-nima-docker-insecure
+    state: absent
+  when: not docker_engine_repo_allow_insecure | bool
+
+- name: Download Docker repository signing key
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ docker_engine_repo_base_url }}/gpg"
+    dest: /etc/apt/keyrings/docker.asc
+    owner: root
+    group: root
+    mode: '0644'
+    validate_certs: "{{ docker_engine_validate_certs }}"
+
+- name: Configure Docker APT repository
+  become: true
+  ansible.builtin.template:
+    src: docker-repo.j2
+    dest: /etc/apt/sources.list.d/docker.list
+    owner: root
+    group: root
+    mode: '0644'
+  register: docker_engine_repository
+
+- name: Install Docker packages
+  become: true
+  ansible.builtin.apt:
+    name: "{{ docker_engine_packages }}"
+    state: "{{ docker_engine_package_state }}"
+    update_cache: "{{ docker_engine_repository.changed }}"
+    allow_unauthenticated: "{{ docker_engine_repo_allow_insecure }}"
+
+- name: Ensure Docker service is enabled and running
+  become: true
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add configured user to Docker group
+  become: true
+  ansible.builtin.user:
+    name: "{{ docker_engine_user }}"
+    groups: docker
+    append: true
+  when: docker_engine_user | length > 0

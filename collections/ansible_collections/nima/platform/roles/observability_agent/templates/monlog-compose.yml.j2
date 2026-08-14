@@ -1,0 +1,113 @@
+name: host-monitoring
+
+networks:
+  app_net:
+    external: true
+    name: app_net
+  web_net:
+    external: true
+    name: web_net
+
+volumes:
+  promtail_positions:
+    name: promtail_positions-${SERVER_NAME}
+
+x-extra-hosts: &common-extra-hosts
+  - "{{ observability_agent_loki_host }}:{{ observability_agent_loki_ip }}"
+
+services:
+  cadvisor:
+    image: {{ observability_agent_registry }}/google/cadvisor:${CADV_VERSION}
+    restart: ${RESTART_POLICY}
+    container_name: cadvisor
+    hostname: cadvisor-${SERVER_NAME}
+    privileged: true
+    cgroup: host
+    command:
+      - --disable_metrics=disk,udp,percpu
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    networks:
+      - app_net
+      - web_net
+    ports:
+      - "8080:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web_net"
+      - "traefik.http.routers.cadvisor-${SERVER_NAME}.rule=Host(`${CONTAINER_SUB_DOMAIN}.${DOMAIN_ADDRESS}`)"
+      - "traefik.http.routers.cadvisor-${SERVER_NAME}.entrypoints=https"
+      - "traefik.http.routers.cadvisor-${SERVER_NAME}.tls=true"
+      - "traefik.http.routers.cadvisor-${SERVER_NAME}.tls.options=default"
+      - "traefik.http.routers.cadvisor-${SERVER_NAME}.middlewares=traefik-chain@file"
+      - "traefik.http.routers.cadvisor-${SERVER_NAME}.service=cadvisor-${SERVER_NAME}"
+      - "traefik.http.services.cadvisor-${SERVER_NAME}.loadbalancer.server.port=8080"
+      - "logging.jobname=cadvisor"
+    extra_hosts: *common-extra-hosts
+
+  node-exporter:
+    image: {{ observability_agent_hub_registry }}/prom/node-exporter:${NDEEXP_VERSION}
+    restart: ${RESTART_POLICY}
+    container_name: node-exporter
+    hostname: node-exporter-${SERVER_NAME}
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    command:
+      - --path.rootfs=/host
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --web.listen-address=:9100
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc|host/var/lib/docker/containers|host/var/lib/docker/overlay2|host/run/docker/netns)($$|/)
+    networks:
+      - app_net
+      - web_net
+    ports:
+      - "9100:9100"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web_net"
+      - "traefik.http.routers.node-exporter-${SERVER_NAME}.rule=Host(`${NODE_SUB_DOMAIN}.${DOMAIN_ADDRESS}`)"
+      - "traefik.http.routers.node-exporter-${SERVER_NAME}.entrypoints=https"
+      - "traefik.http.routers.node-exporter-${SERVER_NAME}.tls=true"
+      - "traefik.http.routers.node-exporter-${SERVER_NAME}.tls.options=default"
+      - "traefik.http.routers.node-exporter-${SERVER_NAME}.middlewares=traefik-chain@file"
+      - "traefik.http.routers.node-exporter-${SERVER_NAME}.service=node-exporter-${SERVER_NAME}"
+      - "traefik.http.services.node-exporter-${SERVER_NAME}.loadbalancer.server.port=9100"
+      - "logging.jobname=node-exporter"
+    extra_hosts: *common-extra-hosts
+
+  promtail:
+    image: {{ observability_agent_hub_registry }}/grafana/promtail:${PROMTAIL_VERSION}
+    restart: ${RESTART_POLICY}
+    container_name: promtail-${SERVER_NAME}
+    hostname: promtail-${SERVER_NAME}
+    environment:
+      SERVER_NAME: ${SERVER_NAME}
+      LOKI_SCHEME: ${LOKI_SCHEME}
+      LOKI_URL: ${LOKI_URL}
+      LOKI_USER: ${LOKI_USER}
+      LOKI_PASS: ${LOKI_PASS}
+    command:
+      - -config.file=/etc/promtail/promtail.yml
+      - -config.expand-env=true
+      - -log.level=info
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./promtail/promtail.yml:/etc/promtail/promtail.yml:ro
+      - promtail_positions:/var/lib/promtail
+    networks:
+      - app_net
+    labels:
+      - "logging.jobname=promtail"
+    extra_hosts: *common-extra-hosts

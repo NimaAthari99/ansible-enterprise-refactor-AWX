@@ -1,0 +1,70 @@
+# # debian.org Sid Debian Sid
+
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: http://deb.debian.org/debian/
+# Suites: sid
+# Components: main
+# Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+# Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# # ito.gov.ir Sid Debian Sid
+
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: sid
+# Components: main contrib non-free non-free-firmware
+# Signed-By:
+# Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# # iut.ac.ir Sid Debian Sid
+
+# # NOT WORKS NOW 14050111
+# # sid
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: http://repo.iut.ac.ir/debian/
+# Suites: sid
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+
+# # NOT WORKS NOW 14050111
+# # sid-updates
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: http://repo.iut.ac.ir/debian/
+# Suites: sid-updates
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# # jamko.ir Sid Debian Sid
+
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://debian.jamko.ir/
+# Suites: sid
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# # runflare.com Sid Debian Sid
+
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: http://mirror-linux.runflare.com/debian/
+# Suites: sid
+# Components: main contrib non-free non-free-firmware
+# Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+# Trusted: yes

@@ -1,0 +1,78 @@
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+
+# Invalid TCP packets
+-A PREROUTING -p tcp -m tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG NONE -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags FIN,SYN FIN,SYN -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags SYN,RST SYN,RST -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags FIN,SYN FIN,SYN -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags FIN,RST FIN,RST -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags FIN,ACK FIN -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags ACK,URG URG -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags FIN,ACK FIN -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags PSH,ACK PSH -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG FIN,SYN,RST,PSH,ACK,URG -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG NONE -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG FIN,PSH,URG -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG FIN,SYN,PSH,URG -j DROP
+-A PREROUTING -p tcp -m tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG FIN,SYN,RST,ACK,URG -j DROP
+COMMIT
+
+
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:CHECK_INPUT - [0:0]
+:CHECK_OUTPUT - [0:0]
+
+# Chain Jumps
+-A INPUT -j CHECK_INPUT
+-A OUTPUT -j CHECK_OUTPUT
+
+# Allow Established Connections
+-A CHECK_INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A CHECK_INPUT -i enp0s8 -j ACCEPT
+
+# Allow Specific Interfaces
+{% for net in linux_baseline_iptables.network_adapter_access | default([]) %}
+-A CHECK_INPUT -i {{ net }} -j ACCEPT
+{% endfor %}
+
+# Allow SSH Only From Trusted IPs
+{% for ip in linux_baseline_iptables.trusted_IP | default([]) %}
+-A CHECK_INPUT -p tcp -m tcp --dport {{ linux_baseline_sshd_config.Port | default('22') }} -s {{ ip }} -j ACCEPT -m comment --comment "SSH Allowed IP"
+
+{% endfor %}
+
+# Add Custome Rules
+{% for rule in linux_baseline_iptables_extra_rules | default([]) %}
+{{ rule }}
+{% endfor %}
+
+# Standard TCP Allow
+{% for tcp in linux_baseline_iptables.tcp_port_access | default([]) %}
+-A CHECK_INPUT -p tcp -m tcp --dport {{ tcp }} -j ACCEPT
+{% endfor %}
+
+# Standard UDP Allow
+{% for udp in linux_baseline_iptables.udp_port_access | default([]) %}
+-A CHECK_INPUT -p udp -m udp --dport {{ udp }} -j ACCEPT
+{% endfor %}
+
+# Trusted Ranges
+{% for range in linux_baseline_iptables.trusted_IP_range | default([]) %}
+-A CHECK_INPUT -s {{ range }} -j ACCEPT -m comment --comment "Trusted Range"
+{% endfor %}
+
+-A CHECK_OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A CHECK_OUTPUT -j ACCEPT
+
+-A INPUT -j DROP
+-A OUTPUT -j DROP
+
+COMMIT

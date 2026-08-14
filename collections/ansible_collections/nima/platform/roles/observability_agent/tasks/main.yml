@@ -1,0 +1,13 @@
+---
+- name: Configure Promtail monitoring client
+  ansible.builtin.import_tasks: monlog-client.yml
+  when: observability_agent_method == "prom"
+  tags: [observability, promtail]
+
+- name: Reject unfinished Elastic Agent mode
+  ansible.builtin.fail:
+    msg: >-
+      observability_agent_method=elk is not implemented in this collection yet.
+      Keeping a silent empty task file here would be the infrastructure equivalent of lying with confidence.
+  when: observability_agent_method == "elk"
+  tags: [observability, elastic_agent]

@@ -1,0 +1,3 @@
+deb{% if linux_baseline_allow_insecure_apt_mirror %} [trusted=yes]{% endif %} http://{{ linux_baseline_mirror_domain_name }}/repository/debian_{{ linux_baseline_debian_release }} {{ linux_baseline_debian_release }} main
+deb{% if linux_baseline_allow_insecure_apt_mirror %} [trusted=yes]{% endif %} http://{{ linux_baseline_mirror_domain_name }}/repository/debian_{{ linux_baseline_debian_release }} {{ linux_baseline_debian_release }}-updates main
+deb{% if linux_baseline_allow_insecure_apt_mirror %} [trusted=yes]{% endif %} http://{{ linux_baseline_mirror_domain_name }}/repository/debian-security_{{ linux_baseline_debian_release }} {{ linux_baseline_debian_release }}-security main

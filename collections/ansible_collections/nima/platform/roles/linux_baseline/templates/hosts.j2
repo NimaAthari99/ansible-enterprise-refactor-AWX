@@ -1,0 +1,5 @@
+127.0.0.1 localhost
+127.0.1.1 {{ inventory_hostname }} {{ inventory_hostname }}.{{ linux_baseline_domain_name }}
+{% for entry in linux_baseline_hosts_entries %}
+{{ entry.ip }} {{ entry.names | join(' ') }}
+{% endfor %}

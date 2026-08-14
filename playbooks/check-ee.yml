@@ -1,0 +1,35 @@
+---
+- name: Check AWX Execution Environment
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Show Ansible version
+      ansible.builtin.command:
+        cmd: ansible --version
+      register: check_ee_ansible_version
+      changed_when: false
+
+    - name: Print Ansible version
+      ansible.builtin.debug:
+        var: check_ee_ansible_version.stdout_lines
+
+    - name: List installed collections
+      ansible.builtin.command:
+        cmd: ansible-galaxy collection list
+      register: check_ee_collection_list
+      changed_when: false
+
+    - name: Print installed collections
+      ansible.builtin.debug:
+        var: check_ee_collection_list.stdout_lines
+
+    - name: Check timezone module documentation
+      ansible.builtin.command:
+        cmd: ansible-doc community.general.timezone
+      register: check_ee_timezone_module
+      changed_when: false
+
+    - name: Print timezone module result
+      ansible.builtin.debug:
+        var: check_ee_timezone_module.stdout_lines

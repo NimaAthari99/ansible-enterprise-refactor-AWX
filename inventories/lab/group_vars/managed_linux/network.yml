@@ -1,0 +1,13 @@
+---
+# Used only by playbooks/network.yml, which requires an explicit target_hosts value.
+linux_network_required_interfaces:
+  - enp0s3
+  - enp0s8
+linux_network_interfaces:
+  - name: lo
+    method: loopback
+  - name: enp0s3
+    method: dhcp
+  - name: enp0s8
+    method: dhcp
+linux_network_reboot_on_change: true

@@ -1,0 +1,95 @@
+# # ito.gov.ir Debian Forky
+
+# # forky
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: forky
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# # forky-updates
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: forky-updates
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# # forky-proposed-updates
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: forky-proposed-updates
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# # forky-backports
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://archive.ito.gov.ir/debian/
+# Suites: forky-backports
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# # jamko.ir Debian Forky
+
+# # NOT WORKS 14050114
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://debian.jamko.ir/
+# Suites: forky
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# # NOT WORKS 14050114
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://debian.jamko.ir/
+# Suites: forky-updates
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# # NOT WORKS 14050114
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://debian.jamko.ir/
+# Suites: forky-security
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# # NOT WORKS 14050114
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://debian.jamko.ir/
+# Suites: forky-piroposed-updates
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# # NOT WORKS 14050114
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://debian.jamko.ir/
+# Suites: forky-backports
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes
+
+# # NOT WORKS 14050114
+# # Modernized from /etc/apt/sources.list
+# Types: deb
+# URIs: https://debian.jamko.ir/
+# Suites: forky-backports-sloppy
+# Components: main contrib non-free non-free-firmware
+# Signed-By: 
+# Trusted: yes

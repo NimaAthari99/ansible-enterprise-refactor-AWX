@@ -1,0 +1,10 @@
+ansible-navigator:
+  execution-environment:
+    enabled: true
+    container-engine: auto
+    image: nima-platform-ee:1.0.0
+    pull:
+      policy: missing
+  playbook-artifact:
+    enable: true
+  mode: stdout

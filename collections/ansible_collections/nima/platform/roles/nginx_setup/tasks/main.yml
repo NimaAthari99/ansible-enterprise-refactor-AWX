@@ -1,0 +1,23 @@
+---
+- name: Install Nginx
+  ansible.builtin.import_tasks: install.yml
+  tags: [nginx, nginx_install]
+
+- name: Configure Nginx
+  ansible.builtin.import_tasks: configure.yml
+  tags: [nginx, nginx_config]
+
+- name: Configure Nginx basic authentication
+  ansible.builtin.import_tasks: auth.yml
+  when: nginx_setup_enable_basic_auth | bool
+  tags: [nginx, nginx_auth]
+
+- name: Create Nginx sample files
+  ansible.builtin.import_tasks: create_files.yml
+  when: nginx_setup_sample_files | length > 0
+  tags: [nginx, nginx_content]
+
+- name: Configure Nginx firewall rule
+  ansible.builtin.import_tasks: firewall.yml
+  when: nginx_setup_manage_firewall | bool
+  tags: [nginx, nginx_firewall]

@@ -1,0 +1,33 @@
+stages:
+  - validate
+  - build
+
+variables:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  ANSIBLE_FORCE_COLOR: "1"
+
+.default_ansible:
+  image: python:3.13-slim
+  before_script:
+    - pip install -r requirements-dev.txt
+    - ansible-galaxy collection install -r collections/requirements.yml
+
+validate:
+  extends: .default_ansible
+  stage: validate
+  script:
+    - python3 scripts/validate_structure.py
+    - ansible-inventory -i inventories/lab/hosts.yml --graph
+    - yamllint playbooks inventories collections/requirements.yml collections/ansible_collections/nima/platform execution-environment.yml
+    - ansible-lint playbooks collections/ansible_collections/nima/platform
+    - for f in playbooks/*.yml; do ansible-playbook -i inventories/lab/hosts.yml --syntax-check "$f"; done
+
+collection-build:
+  extends: .default_ansible
+  stage: build
+  script:
+    - mkdir -p artifacts/collections
+    - ansible-galaxy collection build collections/ansible_collections/nima/platform --force --output-path artifacts/collections
+  artifacts:
+    paths:
+      - artifacts/collections/*.tar.gz

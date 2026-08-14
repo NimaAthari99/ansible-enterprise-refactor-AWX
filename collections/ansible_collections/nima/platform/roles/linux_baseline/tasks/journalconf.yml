@@ -1,0 +1,91 @@
+---
+
+- name: Systemd `journald.conf` File Configure
+  become: true
+  ansible.builtin.template:
+    src: journald.conf.j2
+    dest: /etc/systemd/journald.conf
+    backup: 'yes'
+    mode: 0644
+    owner: root
+    group: root
+  notify:
+    - Restart systemd-journald
+  tags:
+    - journald-config
+
+- name: Configure `logrotate.conf` File
+  become: true
+  ansible.builtin.template:
+    src: logrotate.conf.j2
+    dest: /etc/logrotate.conf
+    backup: 'yes'
+    mode: 0644
+    owner: root
+    group: root
+  tags:
+    - logrotate-config
+    - journald-config
+
+- name: Configure `cron.daily` Logrotate
+  become: true
+  ansible.builtin.lineinfile:
+    line: "/usr/sbin/logrotate /etc/logrotate.conf"
+    dest: /etc/cron.daily/logrotate
+    mode: 0750
+    state: present
+    create: 'yes'
+  tags:
+    - logrotate-config
+    - cron-config
+    - journald-config
+
+- name: Stat `rsyslog.conf`
+  become: true
+  ansible.builtin.stat:
+    path: /etc/rsyslog.conf
+  register: linux_baseline_rsyslogconf
+  tags:
+    - rsyslog-config
+    - journald-config
+
+- name: Get `rsyslog.conf` FileCreateMode
+  become: true
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  ansible.builtin.shell: grep "^$FileCreateMode" /etc/rsyslog.conf
+  register: linux_baseline_rsyslog_filecreatemode
+  changed_when: false
+  when: linux_baseline_rsyslogconf.stat.exists
+  tags:
+    - rsyslog-config
+    - journald-config
+
+- name: Set `rsyslog.conf` FileCreateMode
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: '^\$FileCreateMode'
+    line: '$FileCreateMode 0600'
+    dest: /etc/rsyslog.conf
+    mode: 0640
+    state: present
+    create: 'no'
+  when: linux_baseline_rsyslogconf.stat.exists and linux_baseline_rsyslog_filecreatemode.stdout.find('FileCreateMode') != -1
+  tags:
+    - rsyslog-config
+    - journald-config
+
+- name: Set `rsyslog.d` FileCreateMode
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: '^\$FileCreateMode'
+    line: '$FileCreateMode 0600'
+    dest: /etc/rsyslog.d/99-filecreatemode.conf
+    mode: 0644
+    state: present
+    create: 'yes'
+  tags:
+    - rsyslog-config
+    - journald-config
+
+...

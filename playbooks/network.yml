@@ -1,0 +1,24 @@
+---
+- name: Require an explicit network target
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Validate target_hosts was provided
+      ansible.builtin.assert:
+        that:
+          - target_hosts is defined
+          - target_hosts | default('') | string | length > 0
+          - target_hosts | default('all') != 'all'
+        fail_msg: >-
+          network.yml requires an explicit target_hosts value and refuses target_hosts=all.
+          In AWX expose target_hosts as a required Survey field.
+
+- name: Configure explicitly targeted network interfaces
+  hosts: "{{ target_hosts | default('__network_target_not_set__') }}"
+  gather_facts: true
+  become: true
+  serial: 1
+  any_errors_fatal: true
+  roles:
+    - role: nima.platform.linux_network
+      tags: [network]

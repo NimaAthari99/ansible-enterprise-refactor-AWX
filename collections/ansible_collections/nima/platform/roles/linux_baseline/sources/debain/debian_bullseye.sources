@@ -1,0 +1,33 @@
+# iut.ac.ir Bullseye Debian 11
+
+# NOT WORKS NOW 14050111
+# bullseye
+# Modernized from /etc/apt/sources.list
+Types: deb
+URIs: http://repo.iut.ac.ir/debian/
+Suites: bullseye
+Components: main
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+Trusted: yes
+
+# NOT WORKS NOW 14050111
+# bullseye-updates
+# Modernized from /etc/apt/sources.list
+Types: deb
+URIs: http://repo.iut.ac.ir/debian/
+Suites: bullseye-updates
+Components: main
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+Trusted: yes
+
+# -------------------------------------------------------------------------------------------------
+
+# jamko.ir Bullseye Debian 11
+
+# Modernized from /etc/apt/sources.list
+Types: deb
+URIs: https://debian.jamko.ir/
+Suites: bullseye
+Components: main contrib non-free 
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+Trusted: yes

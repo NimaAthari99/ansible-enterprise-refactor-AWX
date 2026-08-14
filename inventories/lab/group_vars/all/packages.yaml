@@ -1,0 +1,30 @@
+linux_baseline_packages:
+- sudo
+- apache2-utils
+- wget
+- vim
+- nano
+- bash-completion
+# - libcurl4t64:amd64=8.14.1-2+deb13u2    # If needed and have error for installing curl
+- curl
+- net-tools
+- dnsutils
+- ncdu
+- tcpdump
+- telnet
+- ntpsec
+- sysstat
+- htop
+- iftop
+- atop
+- jq
+- unzip
+- fail2ban
+- axel
+- netfilter-persistent                    # Another instance of iptables in new generations
+- iptables-persistent
+# - libaudit1:amd64=1:4.0.2-2+b2          # If needed and have error for installing auditd
+- auditd
+- libpwquality-common
+- cracklib-runtime
+- git
