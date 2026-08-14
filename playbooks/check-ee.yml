@@ -1,5 +1,5 @@
 ---
----
+
 - name: Test inventory
   hosts: nginx-server-5
   gather_facts: false
