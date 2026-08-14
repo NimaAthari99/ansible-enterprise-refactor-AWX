@@ -11,7 +11,6 @@
           - "inventory_hostname={{ inventory_hostname }}"
           - "ansible_host={{ ansible_host | default('UNDEFINED') }}"
 
-
 - name: Check AWX Execution Environment
   hosts: nginx-server-5
   connection: local
