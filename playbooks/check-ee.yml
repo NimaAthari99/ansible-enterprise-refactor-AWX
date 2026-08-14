@@ -1,6 +1,6 @@
 ---
 - name: Check AWX Execution Environment
-  hosts: localhost
+  hosts: nginx-server-5
   connection: local
   gather_facts: false
   tasks:
