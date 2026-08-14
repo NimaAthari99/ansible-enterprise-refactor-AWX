@@ -1,0 +1,112 @@
+---
+- name: Ensure custom execution environment exists when requested
+  awx.awx.execution_environment:
+    name: "{{ awx_execution_environment.name }}"
+    image: "{{ awx_execution_environment.image }}"
+    organization: "{{ awx_organization_name }}"
+    pull: "{{ awx_execution_environment.pull }}"
+    state: present
+  when: awx_execution_environment.manage | bool
+
+- name: Ensure AWX project exists
+  awx.awx.project:
+    name: "{{ awx_project.name }}"
+    description: "{{ awx_project.description }}"
+    organization: "{{ awx_organization_name }}"
+    scm_type: "{{ awx_project.scm_type }}"
+    scm_url: "{{ awx_project.scm_url if awx_project.scm_url | length > 0 else omit }}"
+    scm_branch: "{{ awx_project.scm_branch if awx_project.scm_branch | length > 0 else omit }}"
+    scm_clean: "{{ awx_project.scm_clean }}"
+    scm_delete_on_update: "{{ awx_project.scm_delete_on_update }}"
+    scm_update_on_launch: "{{ awx_project.scm_update_on_launch }}"
+    allow_override: "{{ awx_project.allow_override }}"
+    credential: >-
+      {{
+        awx_scm_credential.name
+        if awx_scm_credential.manage | bool
+        else (awx_project.credential_name if awx_project.credential_name | length > 0 else omit)
+      }}
+    default_environment: "{{ awx_execution_environment.name }}"
+    wait: true
+    state: present
+
+- name: Ensure AWX inventory exists
+  awx.awx.inventory:
+    name: "{{ awx_inventory.name }}"
+    description: "{{ awx_inventory.description }}"
+    organization: "{{ awx_organization_name }}"
+    state: present
+
+- name: Remove legacy inventory source names
+  awx.awx.inventory_source:
+    name: "{{ item }}"
+    inventory: "{{ awx_inventory.name }}"
+    organization: "{{ awx_organization_name }}"
+    state: absent
+  loop: "{{ awx_inventory_source.legacy_names | default([]) }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Ensure project-backed inventory source exists
+  awx.awx.inventory_source:
+    name: "{{ awx_inventory_source.name }}"
+    inventory: "{{ awx_inventory.name }}"
+    organization: "{{ awx_organization_name }}"
+    source: scm
+    source_project: "{{ awx_project.name }}"
+    source_path: "{{ awx_inventory_source.source_path }}"
+    execution_environment: "{{ awx_execution_environment.name }}"
+    overwrite: "{{ awx_inventory_source.overwrite }}"
+    overwrite_vars: "{{ awx_inventory_source.overwrite_vars }}"
+    update_on_launch: "{{ awx_inventory_source.update_on_launch }}"
+    update_cache_timeout: "{{ awx_inventory_source.update_cache_timeout }}"
+    state: present
+
+- name: Sync project-backed inventory source
+  awx.awx.inventory_source_update:
+    name: "{{ awx_inventory_source.name }}"
+    inventory: "{{ awx_inventory.name }}"
+    organization: "{{ awx_organization_name }}"
+    wait: true
+    timeout: 600
+  when:
+    - awx_inventory_source.sync_after_apply | bool
+    - not ansible_check_mode
+
+- name: Ensure managed workload job templates exist
+  awx.awx.job_template:
+    name: "{{ item.name }}"
+    organization: "{{ awx_organization_name }}"
+    inventory: "{{ awx_inventory.name }}"
+    project: "{{ awx_project.name }}"
+    playbook: "{{ item.playbook }}"
+    job_type: run
+    execution_environment: "{{ awx_execution_environment.name }}"
+    credentials: >-
+      {{
+        ([awx_machine_credential.name] if item.attach_machine_credential | bool else [])
+        + ([awx_platform_secrets_credential.name] if item.attach_platform_secrets | bool else [])
+      }}
+    ask_limit_on_launch: "{{ item.ask_limit_on_launch }}"
+    diff_mode: "{{ item.diff_mode }}"
+    become_enabled: "{{ item.attach_machine_credential | bool }}"
+    survey_enabled: "{{ item.survey is defined }}"
+    survey_spec: "{{ item.survey if item.survey is defined else omit }}"
+    state: present
+  loop: "{{ awx_job_templates }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Ensure AWX self-reconcile job template exists
+  awx.awx.job_template:
+    name: "{{ awx_controller_job_template.name }}"
+    organization: "{{ awx_organization_name }}"
+    project: "{{ awx_project.name }}"
+    playbook: playbooks/awx-controller.yml
+    job_type: run
+    execution_environment: "{{ awx_execution_environment.name }}"
+    credentials:
+      - "{{ awx_controller_api_credential.name }}"
+    diff_mode: true
+    state: present
+  when: awx_controller_api_credential.manage | bool

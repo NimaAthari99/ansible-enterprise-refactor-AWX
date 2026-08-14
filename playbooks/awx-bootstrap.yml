@@ -1,0 +1,109 @@
+---
+- name: Bootstrap AWX controller from an external trusted runner
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../awx/controller.yml
+  vars:
+    awx_bootstrap_secrets_path: >-
+      {{ awx_bootstrap_secrets_file | default(playbook_dir ~ '/../awx/bootstrap-secrets.yml', true) }}
+
+  pre_tasks:
+    - name: Check bootstrap secret file exists on the external runner
+      ansible.builtin.stat:
+        path: "{{ awx_bootstrap_secrets_path }}"
+      register: awx_bootstrap_secrets_stat
+
+    - name: Require external bootstrap secret file
+      ansible.builtin.assert:
+        that:
+          - awx_bootstrap_secrets_stat.stat.exists
+          - awx_bootstrap_secrets_stat.stat.isreg
+        fail_msg: >-
+          Bootstrap secrets were not found at {{ awx_bootstrap_secrets_path }}.
+          This bootstrap playbook is intentionally run outside AWX. Keep the real
+          secret file outside Git and pass its path with
+          -e awx_bootstrap_secrets_file=/secure/path/file.yml.
+
+    - name: Load bootstrap secrets from the external runner
+      ansible.builtin.include_vars:
+        file: "{{ awx_bootstrap_secrets_path }}"
+      no_log: true
+
+    - name: Validate controller API Basic Auth environment
+      ansible.builtin.assert:
+        that:
+          - lookup('ansible.builtin.env', 'CONTROLLER_HOST') | length > 0
+          - lookup('ansible.builtin.env', 'CONTROLLER_USERNAME') | length > 0
+          - lookup('ansible.builtin.env', 'CONTROLLER_PASSWORD') | length > 0
+        fail_msg: >-
+          Export CONTROLLER_HOST, CONTROLLER_USERNAME, and CONTROLLER_PASSWORD
+          on the external bootstrap runner. This AWX development build does not
+          expose /api/v2/tokens/, so the matching awx.awx collection uses Basic Auth.
+
+    - name: Verify controller Basic Auth before using awx.awx modules
+      ansible.builtin.uri:
+        url: "{{ lookup('ansible.builtin.env', 'CONTROLLER_HOST') | regex_replace('/+$', '') }}/api/v2/me/"
+        method: GET
+        url_username: "{{ lookup('ansible.builtin.env', 'CONTROLLER_USERNAME') }}"
+        url_password: "{{ lookup('ansible.builtin.env', 'CONTROLLER_PASSWORD') }}"
+        force_basic_auth: true
+        validate_certs: >-
+          {{ lookup('ansible.builtin.env', 'CONTROLLER_VERIFY_SSL') | default('true', true) | bool }}
+        status_code: 200
+        return_content: false
+      no_log: true
+
+    - name: Validate machine credential inputs
+      ansible.builtin.assert:
+        that:
+          - awx_machine_credential_inputs is mapping
+          - awx_machine_credential_inputs.username | default('') | length > 0
+          - awx_machine_credential_inputs.username != 'CHANGE_ME'
+          - >-
+            (awx_machine_credential_inputs.ssh_key_data | default('') | trim | length > 0
+             and awx_machine_credential_inputs.ssh_key_data | trim != 'CHANGE_ME')
+            or
+            (awx_machine_credential_inputs.password | default('') | length > 0)
+        fail_msg: >-
+          Configure awx_machine_credential_inputs in the external bootstrap secret file.
+      when: awx_machine_credential.manage | bool
+
+    - name: Validate AWX self API credential inputs
+      ansible.builtin.assert:
+        that:
+          - awx_controller_api_credential_inputs is mapping
+          - awx_controller_api_credential_inputs.controller_host | default('') | length > 0
+          - awx_controller_api_credential_inputs.controller_username | default('') | length > 0
+          - awx_controller_api_credential_inputs.controller_username != 'CHANGE_ME'
+          - awx_controller_api_credential_inputs.controller_password | default('') | length > 0
+          - awx_controller_api_credential_inputs.controller_password != 'CHANGE_ME'
+        fail_msg: >-
+          awx_controller_api_credential_inputs must contain controller_host,
+          controller_username, and controller_password for the AWX self-management
+          service account.
+      when: awx_controller_api_credential.manage | bool
+
+    - name: Validate SCM credential inputs when managed
+      ansible.builtin.assert:
+        that:
+          - awx_scm_credential_inputs is mapping
+          - >-
+            (awx_scm_credential_inputs.password | default('') | length > 0)
+            or
+            (awx_scm_credential_inputs.ssh_key_data | default('') | length > 0)
+        fail_msg: >-
+          awx_scm_credential.manage=true requires a password/token or SSH key in
+          the external bootstrap secret file.
+      when: awx_scm_credential.manage | bool
+
+  tasks:
+    - name: Apply AWX foundation resources
+      ansible.builtin.import_tasks: tasks/awx-foundation.yml
+
+    - name: Create or update AWX secret credentials
+      ansible.builtin.import_tasks: tasks/awx-secret-credentials.yml
+
+    - name: Apply AWX projects, inventories, sources, and templates
+      ansible.builtin.import_tasks: tasks/awx-resources.yml

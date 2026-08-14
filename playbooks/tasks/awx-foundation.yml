@@ -1,0 +1,75 @@
+---
+- name: Ensure AWX organization and Galaxy association exist
+  awx.awx.organization:
+    name: "{{ awx_organization_name }}"
+    galaxy_credentials: "{{ awx_galaxy_credentials }}"
+    state: present
+
+- name: Ensure platform secrets credential type exists
+  awx.awx.credential_type:
+    name: "{{ awx_platform_credential_type.name }}"
+    description: "{{ awx_platform_credential_type.description }}"
+    kind: cloud
+    inputs:
+      fields:
+        - id: secret_platform_http_proxy
+          type: string
+          label: Platform HTTP proxy
+          secret: true
+        - id: secret_file_service_username
+          type: string
+          label: Authorized-key service username
+        - id: secret_file_service_password
+          type: string
+          label: Authorized-key service password
+          secret: true
+        - id: secret_loki_password
+          type: string
+          label: Loki password
+          secret: true
+        - id: secret_nginx_auth_password
+          type: string
+          label: Nginx basic-auth password
+          secret: true
+      required: []
+    injectors:
+      extra_vars:
+        secret_platform_http_proxy: "{{ '{{ secret_platform_http_proxy }}' }}"
+        secret_file_service_username: "{{ '{{ secret_file_service_username }}' }}"
+        secret_file_service_password: "{{ '{{ secret_file_service_password }}' }}"
+        secret_loki_password: "{{ '{{ secret_loki_password }}' }}"
+        secret_nginx_auth_password: "{{ '{{ secret_nginx_auth_password }}' }}"
+    state: present
+
+- name: Ensure AWX self API credential type exists
+  awx.awx.credential_type:
+    name: "{{ awx_controller_api_credential_type.name }}"
+    description: "{{ awx_controller_api_credential_type.description }}"
+    kind: cloud
+    inputs:
+      fields:
+        - id: controller_host
+          type: string
+          label: Controller URL
+        - id: controller_username
+          type: string
+          label: Controller username
+        - id: controller_password
+          type: string
+          label: Controller password
+          secret: true
+        - id: controller_verify_ssl
+          type: string
+          label: Verify TLS certificates (true/false)
+      required:
+        - controller_host
+        - controller_username
+        - controller_password
+        - controller_verify_ssl
+    injectors:
+      env:
+        CONTROLLER_HOST: "{{ '{{ controller_host }}' }}"
+        CONTROLLER_USERNAME: "{{ '{{ controller_username }}' }}"
+        CONTROLLER_PASSWORD: "{{ '{{ controller_password }}' }}"
+        CONTROLLER_VERIFY_SSL: "{{ '{{ controller_verify_ssl }}' }}"
+    state: present

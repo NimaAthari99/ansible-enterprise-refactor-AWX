@@ -1,0 +1,148 @@
+---
+# Non-secret AWX desired state. This file is safe to commit.
+# Secret values belong in awx/bootstrap-secrets.yml (Ansible Vault encrypted).
+
+awx_organization_name: Default
+awx_galaxy_credentials:
+  - Ansible Galaxy
+
+# Reuse the built-in EE by default. When your custom image is pushed to a registry,
+# set manage=true and point image at that immutable tag/digest.
+awx_execution_environment:
+  manage: false
+  name: AWX EE (latest)
+  image: ""
+  pull: missing
+
+awx_project:
+  name: All_Servers_Setup-Project
+  description: All Servers Setup Project managed as code
+  scm_type: git
+  # Leave blank to preserve the URL on an existing project.
+  # Set this before bootstrapping a fresh AWX installation.
+  scm_url: ""
+  # Empty uses/preserves the repository default branch.
+  scm_branch: ""
+  scm_clean: true
+  scm_delete_on_update: false
+  scm_update_on_launch: false
+  allow_override: false
+  # Empty means public repository or preserve an existing credential association.
+  credential_name: ""
+
+awx_inventory:
+  name: lab
+  description: Lab inventory managed from Git
+
+awx_inventory_source:
+  name: lab-git
+  # Adopt the current lab setup by removing obsolete source names before creating the canonical source.
+  legacy_names:
+    - "1"
+  source_path: inventories/lab/hosts.yml
+  overwrite: true
+  overwrite_vars: true
+  update_on_launch: true
+  update_cache_timeout: 0
+  sync_after_apply: true
+
+awx_platform_credential_type:
+  name: Nima Platform Secrets
+  description: Runtime secrets injected into platform automation jobs
+
+awx_controller_api_credential_type:
+  name: AWX Controller API
+  description: Inject controller API endpoint and Basic Auth credentials into AWX self-management jobs
+
+awx_controller_api_credential:
+  manage: true
+  name: AWX Self API
+
+awx_controller_job_template:
+  name: AWX Controller Reconcile
+
+# These credential objects are created by code. Their secret inputs are read from
+# awx/bootstrap-secrets.yml, which must remain encrypted and outside Git history.
+awx_update_encrypted_credential_values: false
+
+awx_machine_credential:
+  manage: true
+  name: Lab Linux Machine
+
+awx_platform_secrets_credential:
+  manage: true
+  name: Lab Platform Secrets
+
+# Optional. Enable only when the project repository itself needs authentication.
+awx_scm_credential:
+  manage: false
+  name: All Servers SCM
+
+awx_job_templates:
+  - name: Check Execution Environment
+    playbook: playbooks/check-ee.yml
+    attach_machine_credential: false
+    attach_platform_secrets: false
+    ask_limit_on_launch: false
+    diff_mode: false
+
+  - name: Linux Baseline
+    playbook: playbooks/baseline.yml
+    attach_machine_credential: true
+    attach_platform_secrets: true
+    ask_limit_on_launch: true
+    diff_mode: true
+
+  - name: Docker
+    playbook: playbooks/docker.yml
+    attach_machine_credential: true
+    attach_platform_secrets: true
+    ask_limit_on_launch: true
+    diff_mode: true
+
+  - name: Nginx
+    playbook: playbooks/nginx.yml
+    attach_machine_credential: true
+    attach_platform_secrets: true
+    ask_limit_on_launch: true
+    diff_mode: true
+
+  - name: Observability
+    playbook: playbooks/observability.yml
+    attach_machine_credential: true
+    attach_platform_secrets: true
+    ask_limit_on_launch: true
+    diff_mode: true
+
+  - name: Site
+    playbook: playbooks/site.yml
+    attach_machine_credential: true
+    attach_platform_secrets: true
+    ask_limit_on_launch: true
+    diff_mode: true
+
+  - name: SSH Bootstrap
+    playbook: playbooks/bootstrap.yml
+    attach_machine_credential: true
+    attach_platform_secrets: true
+    ask_limit_on_launch: true
+    diff_mode: true
+
+  - name: Network
+    playbook: playbooks/network.yml
+    attach_machine_credential: true
+    attach_platform_secrets: true
+    ask_limit_on_launch: false
+    diff_mode: true
+    survey:
+      name: Network target
+      description: Require an explicit host/group pattern for high-risk network changes
+      spec:
+        - question_name: Target hosts or group
+          question_description: Use a specific host or approved inventory group. The playbook rejects all.
+          required: true
+          type: text
+          variable: target_hosts
+          min: 1
+          max: 255
+          default: ""

@@ -1,49 +1,65 @@
-# AWX setup
+# AWX integration
 
-## 1. Execution Environment
+## Controller authentication for this development build
 
-Build and push the EE image, then create an AWX Execution Environment pointing to that image.
+The deployed AWX API identifies itself as a `24.6.2.dev...+gc0aedc6e3` development
+build and does not expose `/api/v2/tokens/`. Do not use the released
+`awx.awx==24.6.1` collection with username/password against this server: that
+collection attempts to POST to `/api/v2/tokens/` and fails with HTTP 404.
 
-## 2. Project
+The controller-management dependency is intentionally separate from workload
+collections in `collections/requirements-controller.yml` and is pinned to the AWX
+source commit matching the deployed server.
 
-Create a Project using the Git repository containing this tree. Enable **Update Revision on Launch** for environments where always consuming the selected branch/revision is appropriate. Keep `collections/requirements.yml` at the repository root path shown here; AWX recognizes this location for project collection dependencies.
+Install it with:
 
-## 3. Inventory
+```bash
+make controller-deps
+```
 
-Create one AWX Inventory per environment. Add an inventory source:
+Verify:
 
-- Source: **Sourced from a Project**
-- Project: this repository
-- Inventory file: `inventories/lab/hosts.yml` (or staging/production)
-- Update on launch: enabled if desired
+```bash
+ansible-galaxy collection list awx.awx
+```
 
-## 4. Credentials
+For external bootstrap or plan/apply runs, export Basic Auth credentials:
 
-Attach a **Machine Credential** for SSH username/private key and privilege escalation. Do not define `ansible_user` or private keys in Git.
+```bash
+export CONTROLLER_HOST='https://awx.nima.local:8043'
+export CONTROLLER_USERNAME='AWX_SERVICE_ACCOUNT'
+export CONTROLLER_PASSWORD='REDACTED'
+export CONTROLLER_VERIFY_SSL='false'
+```
 
-For service secrets, create the Custom Credential Type using:
+Current AWX supports Basic Authentication for API requests. The matching devel
+`awx.awx` collection validates credentials against `/api/v2/me/` and uses the Basic
+Authorization header directly instead of creating an OAuth token.
 
-- Input configuration: `awx/credential-types/platform-secrets-input.yml`
-- Injector configuration: `awx/credential-types/platform-secrets-injector.yml`
+## Bootstrap
 
-Then create a credential of that type and attach it to templates that need Nginx auth, Loki credentials, or the optional authorized-key service.
+Keep the real bootstrap secret file outside Git:
 
-## 5. Job Templates
+```bash
+cp awx/bootstrap-secrets.example.yml /root/awx-bootstrap-secrets.yml
+chmod 600 /root/awx-bootstrap-secrets.yml
+make awx-bootstrap ARGS='-e awx_bootstrap_secrets_file=/root/awx-bootstrap-secrets.yml'
+```
 
-Recommended templates:
+## Reconcile
 
-| Template | Playbook | Default target | Notes |
-|---|---|---|---|
-| Baseline | `playbooks/baseline.yml` | `managed_linux` | use limit/check mode for rollout |
-| Docker | `playbooks/docker.yml` | `docker_servers` | role is Debian-family only |
-| Nginx | `playbooks/nginx.yml` | `nginx_servers` | needs secret when basic auth is enabled |
-| Observability | `playbooks/observability.yml` | `observability_clients` | `prom` implemented; `elk` fails explicitly |
-| Site | `playbooks/site.yml` | composed groups | normal converging run |
-| Bootstrap | `playbooks/bootstrap.yml` | `managed_linux` | serial=1; high-risk access change |
-| Network | `playbooks/network.yml` | explicit only | require Survey `target_hosts`; never `all` |
+After bootstrap, the `AWX Self API` credential injects the controller URL, username,
+password, and TLS verification flag into `playbooks/awx-controller.yml`. The playbook
+runs on `localhost` inside the Execution Environment and manages AWX through its REST
+API. It does not SSH to the AWX host.
 
-For `target_hosts`, prefer an AWX Survey whose value is constrained to approved inventory patterns rather than granting arbitrary extra vars broadly.
+Use:
 
-## 6. First rollout
+```bash
+make awx-plan
+make awx-apply
+```
 
-Run `playbooks/check-ee.yml`, then inventory sync, then baseline with `--check --diff` and a single-host limit. Expand the limit only after the first host converges cleanly. Run SSH bootstrap and network changes separately from the normal `site.yml` convergence path.
+The desired state is stored in `awx/controller.yml` and covers the organization,
+Galaxy association, project, inventory, project-backed inventory source, custom
+credential types, Execution Environment reference, Job Templates, and survey data.

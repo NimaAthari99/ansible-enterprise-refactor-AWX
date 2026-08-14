@@ -34,3 +34,15 @@ The source archive contained plaintext credentials. Rotate those original creden
 ## Publishing note
 
 The collection currently uses the FQCN `nima.platform`. Before publishing to public Ansible Galaxy, confirm that the `nima` namespace is yours/registered for your organization. If the collection is internal-only, keep the namespace stable and publish it to your chosen internal Galaxy/Automation Hub-compatible source when you split it out of this monorepo.
+
+## AWX controller bootstrap correction (v3)
+
+The previous controller playbook attempted to read `awx/bootstrap-secrets.yml` while that file was intentionally excluded from Git. That cannot work from an AWX Project checkout. Controller-as-code is now split into an external secret-bearing bootstrap (`playbooks/awx-bootstrap.yml`) and a secretless AWX self-reconcile (`playbooks/awx-controller.yml`).
+
+
+## v6 controller loader fix
+
+- Fixed `scripts/controller_doctor.py` to call Ansible `init_plugin_loader()` before resolving FQCN modules.
+- Disabled collection scanning from Python `sys.path` in `ansible.cfg`.
+- Controller Make targets now force project-local collection resolution with `ANSIBLE_COLLECTIONS_PATH` and `ANSIBLE_COLLECTIONS_SCAN_SYS_PATH=false`.
+- This prevents stale system copies such as `/usr/lib/python3/dist-packages/ansible_collections/awx/awx` from being selected for controller-as-code.

@@ -1,18 +1,6 @@
 ---
-
-- name: Test inventory
-  hosts: nginx-server-5
-  gather_facts: false
-
-  tasks:
-    - name: Show inventory connection information
-      ansible.builtin.debug:
-        msg:
-          - "inventory_hostname={{ inventory_hostname }}"
-          - "ansible_host={{ ansible_host | default('UNDEFINED') }}"
-
 - name: Check AWX Execution Environment
-  hosts: nginx-server-5
+  hosts: localhost
   connection: local
   gather_facts: false
   tasks:
@@ -45,3 +33,12 @@
     - name: Print timezone module result
       ansible.builtin.debug:
         var: check_ee_timezone_module.stdout_lines
+
+    - name: Validate required collections are available
+      ansible.builtin.assert:
+        that:
+          - "'community.general' in check_ee_collection_list.stdout"
+          - "'ansible.posix' in check_ee_collection_list.stdout"
+        fail_msg: >-
+          The Execution Environment/job dependency cache is missing community.general
+          or ansible.posix. Check the project collections/requirements.yml sync output.

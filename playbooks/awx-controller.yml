@@ -1,0 +1,52 @@
+---
+- name: Reconcile non-secret AWX controller configuration from Git
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../awx/controller.yml
+
+  pre_tasks:
+    - name: Verify compatible awx.awx collection is selected
+      ansible.builtin.command:
+        argv:
+          - python3
+          - scripts/controller_doctor.py
+      register: awx_controller_doctor
+      changed_when: false
+
+    - name: Show selected controller collection
+      ansible.builtin.debug:
+        var: awx_controller_doctor.stdout_lines
+
+    - name: Validate injected controller Basic Auth environment
+      ansible.builtin.assert:
+        that:
+          - lookup('ansible.builtin.env', 'CONTROLLER_HOST') | length > 0
+          - lookup('ansible.builtin.env', 'CONTROLLER_USERNAME') | length > 0
+          - lookup('ansible.builtin.env', 'CONTROLLER_PASSWORD') | length > 0
+        fail_msg: >-
+          This reconcile playbook does not read local secret files. Attach the
+          AWX Self API credential created by playbooks/awx-bootstrap.yml so that
+          CONTROLLER_HOST, CONTROLLER_USERNAME, and CONTROLLER_PASSWORD are
+          injected into the job.
+
+    - name: Verify controller Basic Auth against the current API
+      ansible.builtin.uri:
+        url: "{{ lookup('ansible.builtin.env', 'CONTROLLER_HOST') | regex_replace('/+$', '') }}/api/v2/me/"
+        method: GET
+        url_username: "{{ lookup('ansible.builtin.env', 'CONTROLLER_USERNAME') }}"
+        url_password: "{{ lookup('ansible.builtin.env', 'CONTROLLER_PASSWORD') }}"
+        force_basic_auth: true
+        validate_certs: >-
+          {{ lookup('ansible.builtin.env', 'CONTROLLER_VERIFY_SSL') | default('true', true) | bool }}
+        status_code: 200
+        return_content: false
+      no_log: true
+
+  tasks:
+    - name: Apply AWX foundation resources
+      ansible.builtin.import_tasks: tasks/awx-foundation.yml
+
+    - name: Apply AWX projects, inventories, sources, and templates
+      ansible.builtin.import_tasks: tasks/awx-resources.yml

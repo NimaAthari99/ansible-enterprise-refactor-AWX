@@ -1,6 +1,6 @@
 ---
 
-- name: Check For Unconfigured Packages
+- name: Check for unconfigured packages
   ansible.builtin.command:
     cmd: dpkg --audit
   register: linux_baseline_dpkg_audit
@@ -10,51 +10,69 @@
     - apt_packages-audit
     - apt_packages-fix
 
-- name: Configure GRUB Installation Device
+- name: Determine whether GRUB repair is required
+  ansible.builtin.set_fact:
+    linux_baseline_grub_repair_required: >-
+      {{ 'grub-pc' in (linux_baseline_dpkg_audit.stdout | default('')) }}
+  changed_when: false
+  tags:
+    - apt_packages-audit
+    - apt_packages-fix
+    - grub-fix
+
+- name: Validate GRUB installation device before repair
+  ansible.builtin.assert:
+    that:
+      - linux_baseline_grub_install_device | default('') | trim | length > 0
+    fail_msg: >-
+      dpkg reports an unconfigured grub-pc package on {{ inventory_hostname }}, but
+      linux_baseline_grub_install_device is empty. Set it in the environment inventory,
+      for example /dev/sda, before allowing the role to repair GRUB.
+  when: linux_baseline_grub_repair_required | bool
+  tags:
+    - apt_packages-audit
+    - apt_packages-fix
+    - grub-fix
+
+- name: Configure GRUB installation device
   ansible.builtin.debconf:
     name: grub-pc
     question: grub-pc/install_devices
     value: "{{ linux_baseline_grub_install_device }}"
     vtype: multiselect
-  when:
-    -  is defined
-    - "'grub-pc' in linux_baseline_dpkg_audit.stdout"
+  when: linux_baseline_grub_repair_required | bool
   tags:
     - apt_packages-audit
     - apt_packages-fix
     - grub-fix
 
-- name: Mark GRUB Device As Configured
+- name: Mark GRUB device as configured
   ansible.builtin.debconf:
     name: grub-pc
     question: grub-pc/install_devices_empty
     value: "false"
     vtype: boolean
-  when:
-    -  is defined
-    - "'grub-pc' in linux_baseline_dpkg_audit.stdout"
+  when: linux_baseline_grub_repair_required | bool
   tags:
     - apt_packages-audit
     - apt_packages-fix
     - grub-fix
 
-- name: Finish Interrupted Package Configuration
+- name: Finish interrupted package configuration
   ansible.builtin.command:
     cmd: dpkg --configure -a
   environment:
     DEBIAN_FRONTEND: noninteractive
-  when:
-    -  is defined
-    - "'grub-pc' in linux_baseline_dpkg_audit.stdout"
+  when: linux_baseline_dpkg_audit.stdout | default('') | trim | length > 0
   tags:
     - apt_packages-audit
     - apt_packages-fix
     - grub-fix
 
-- name: Recheck Package Database
+- name: Recheck package database
   ansible.builtin.command:
     cmd: dpkg --audit
-  register: linux_baseline_linux_baseline_dpkg_audit_after_repair
+  register: linux_baseline_dpkg_audit_after_repair
   changed_when: false
   failed_when: false
   tags:
@@ -62,14 +80,14 @@
     - apt_packages-fix
     - grub-fix
 
-- name: Stop If Package Database Still Requires Repair
+- name: Stop if package database still requires repair
   ansible.builtin.fail:
     msg: |
       {{ inventory_hostname }} still has unconfigured packages.
 
       dpkg --audit:
-      {{ linux_baseline_linux_baseline_dpkg_audit_after_repair.stdout }}
-  when: linux_baseline_linux_baseline_dpkg_audit_after_repair.stdout | trim | length > 0
+      {{ linux_baseline_dpkg_audit_after_repair.stdout }}
+  when: linux_baseline_dpkg_audit_after_repair.stdout | trim | length > 0
   tags:
     - apt_packages-audit
     - apt_packages-fix
@@ -77,35 +95,29 @@
 
 - name: Upgrade installed APT packages when explicitly enabled
   ansible.builtin.apt:
-    upgrade: yes
+    upgrade: true
     update_cache: true
-    autoremove: yes
-    autoclean: yes
-    # fix_broken: yes   # This is the key for --fix-missing ; Does'nt work for now
+    autoremove: true
+    autoclean: true
     cache_valid_time: 86400
-  become: true
   when: linux_baseline_upgrade_packages | bool
   tags:
     - apt_packages-update
     - apt_packages-upgrade
 
-- name: Fix Broken Packages
+- name: Fix broken packages
   ansible.builtin.apt:
     state: fixed
-  become: true
   tags:
     - apt_packages-fix
 
-- name: Install Needed Tools
-  become: true
+- name: Install needed tools
   ansible.builtin.apt:
     name: "{{ linux_baseline_packages }}"
     state: present
-    force_apt_get: yes
+    force_apt_get: true
     update_cache: true
   tags:
     - apt_packages-install
     - apt_packages-update
     - apt_packages-upgrade
-
-...

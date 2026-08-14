@@ -46,9 +46,8 @@ Build the reusable collection with `make build-collection` and the Execution Env
 
 ## AWX workflow
 
-Create an AWX Project from this Git repository, an Inventory sourced from `inventories/<environment>/hosts.yml`, attach a Machine Credential, attach the platform-secrets Custom Credential if required, and use the built EE image. See `docs/05-awx.md`.
+AWX resources are now converged as code with `playbooks/awx-controller.yml` and `awx/controller.yml`. Only bootstrap API authentication and encrypted secret inputs stay outside Git. See `docs/05-awx.md`.
 
 ## Security notice
 
 The uploaded source archive contained plaintext credentials. They were removed from this refactor and are not present in the generated repository. Treat those original values as compromised and rotate them before using this project. Deleting a secret from the current tree does not remove it from an existing Git history.
-# all_servers_setup

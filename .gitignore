@@ -22,3 +22,6 @@ collections/ansible_collections/*
 collections/ansible_collections/nima/*
 !collections/ansible_collections/nima/platform/
 !collections/ansible_collections/nima/platform/**
+
+# Local encrypted AWX bootstrap secret inputs.
+awx/bootstrap-secrets.yml
