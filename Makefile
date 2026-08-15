@@ -9,7 +9,7 @@ CONTROLLER_ENV := ANSIBLE_CONFIG=$(PROJECT_ROOT)/ansible.cfg ANSIBLE_COLLECTIONS
 	NO_PROXY=$(CONTROLLER_NO_PROXY) \
 	no_proxy=$(CONTROLLER_NO_PROXY)
 
-.PHONY: deps controller-deps controller-version controller-doctor static inventory lint yaml-lint syntax controller-syntax validate build-collection build-ee awx-plan awx-apply site bootstrap baseline docker nginx observability clean
+.PHONY: deps controller-deps controller-version controller-doctor static inventory lint yaml-lint syntax controller-syntax validate build-collection ee-vendor ee-vendor-check build-ee awx-plan awx-apply site bootstrap baseline docker nginx observability clean
 
 deps:
 	ansible-galaxy collection install -r collections/requirements-ee.yml --force
@@ -34,7 +34,7 @@ lint:
 	ansible-lint playbooks $(COLLECTION_DIR)
 
 yaml-lint:
-	yamllint playbooks inventories collections/requirements-ee.yml collections/requirements-controller.yml $(COLLECTION_DIR) execution-environment.yml
+	yamllint playbooks inventories collections/requirements-ee.yml collections/requirements-ee-offline.yml collections/requirements-controller.yml $(COLLECTION_DIR) execution-environment.yml
 
 syntax:
 	@for f in playbooks/*.yml; do \
@@ -52,7 +52,15 @@ build-collection:
 	mkdir -p artifacts/collections
 	ansible-galaxy collection build $(COLLECTION_DIR) --force --output-path artifacts/collections
 
-build-ee:
+ee-vendor:
+	./scripts/vendor_ee_collections.sh
+
+ee-vendor-check:
+	@test -f collections/vendor/community-general-13.3.0.tar.gz || (echo "Missing vendored community.general artifact; run make ee-vendor"; exit 2)
+	@test -f collections/vendor/ansible-posix-2.2.2.tar.gz || (echo "Missing vendored ansible.posix artifact; run make ee-vendor"; exit 2)
+	@test -f collections/vendor/awx-awx-0.0.1-devel.tar.gz || (echo "Missing vendored awx.awx artifact; run make ee-vendor"; exit 2)
+
+build-ee: ee-vendor-check
 	ansible-builder build -f execution-environment.yml -t $(EE_IMAGE)
 
 awx-plan: controller-doctor

@@ -2,12 +2,17 @@
 version: 3
 
 build_arg_defaults:
-  # Avoid ansible-galaxy response-cache corruption during flaky/proxied builds.
-  ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: "--no-cache"
+  # All collection artifacts are vendored before the image build. This prevents
+  # the Galaxy stage from contacting public distribution servers during build.
+  ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: "--offline"
 
 images:
   base_image:
     name: registry.fedoraproject.org/fedora:42
+
+additional_build_files:
+  - src: collections/vendor
+    dest: vendor
 
 dependencies:
   python_interpreter:
@@ -16,15 +21,9 @@ dependencies:
     package_pip: ansible-core==2.20.8
   ansible_runner:
     package_pip: ansible-runner==2.4.3
-  galaxy: collections/requirements-ee.yml
+  galaxy: collections/requirements-ee-offline.yml
   python: requirements-ee.txt
   system: bindep.txt
-
-additional_build_steps:
-  # awx.awx is pinned from a Git repository, so git must exist before the Galaxy stage.
-  # bindep dependencies are processed later and cannot satisfy this bootstrap requirement.
-  append_base:
-    - RUN $PKGMGR install -y git && $PKGMGR clean all
 
 options:
   package_manager_path: /usr/bin/dnf

@@ -59,3 +59,15 @@ The uploaded source archive contained plaintext credentials. They were removed f
 ### Controller API proxy bypass
 
 The AWX controller API is an internal endpoint. `awx/controller.yml` defines `awx_controller_no_proxy`, and the bootstrap/reconcile playbooks export both `NO_PROXY` and `no_proxy`. Their preflight `uri` request also uses `use_proxy: false` and is forced to run in check mode, so `make awx-plan` validates the real TLS/API path instead of silently skipping it.
+
+## Reliable EE builds on proxied networks
+
+Public Galaxy is not contacted from inside the container build. Stage pinned
+collection artifacts first, then build:
+
+```bash
+EE_FETCH_PREFIX=proxychains4 make ee-vendor
+make build-ee EE_IMAGE=nima-platform-ee:1.0.0
+```
+
+See `docs/11-offline-ee-collections.md`.

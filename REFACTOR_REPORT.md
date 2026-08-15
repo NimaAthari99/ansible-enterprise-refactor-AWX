@@ -66,3 +66,10 @@ The previous controller playbook attempted to read `awx/bootstrap-secrets.yml` w
   `/runner/project`; bootstrap is external-only by design.
 - Extended structural validation to check top-level playbook `import_tasks`
   targets and the required AWX operational files.
+
+## v11: offline Galaxy stage for EE builds
+
+The EE collection stage now uses vendored tarballs plus `ansible-galaxy
+--offline`. This removes public Galaxy TLS/proxy instability from the container
+build itself. A helper script stages `community.general`, `ansible.posix`, and
+a commit-pinned `awx.awx` artifact before `ansible-builder` runs.

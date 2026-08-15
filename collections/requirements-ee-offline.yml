@@ -1,0 +1,12 @@
+---
+# Runtime collection artifacts are staged under collections/vendor before
+# ansible-builder runs. Paths are relative to /build in the Galaxy stage.
+collections:
+  - name: vendor/community-general-13.3.0.tar.gz
+    type: file
+
+  - name: vendor/ansible-posix-2.2.2.tar.gz
+    type: file
+
+  - name: vendor/awx-awx-0.0.1-devel.tar.gz
+    type: file

@@ -28,3 +28,7 @@ collections/ansible_collections/*
 collections/ansible_collections/nima/*
 !collections/ansible_collections/nima/platform/
 !collections/ansible_collections/nima/platform/**
+
+# Vendored EE collection artifacts are fetched/built locally or restored from
+# an internal artifact store before the EE build. Keep the directory/docs only.
+collections/vendor/*.tar.gz
