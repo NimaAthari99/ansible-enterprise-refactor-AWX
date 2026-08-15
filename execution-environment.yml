@@ -12,7 +12,7 @@ dependencies:
     package_pip: ansible-core==2.20.8
   ansible_runner:
     package_pip: ansible-runner==2.4.3
-  galaxy: collections/requirements.yml
+  galaxy: collections/requirements-ee.yml
   python: requirements-ee.txt
   system: bindep.txt
 

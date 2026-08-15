@@ -6,6 +6,10 @@
   vars_files:
     - ../awx/controller.yml
 
+  environment:
+    NO_PROXY: "{{ awx_controller_no_proxy }}"
+    no_proxy: "{{ awx_controller_no_proxy }}"
+
   pre_tasks:
     - name: Verify compatible awx.awx collection is selected
       ansible.builtin.command:
@@ -14,6 +18,7 @@
           - scripts/controller_doctor.py
       register: awx_controller_doctor
       changed_when: false
+      check_mode: false
 
     - name: Show selected controller collection
       ansible.builtin.debug:
@@ -38,10 +43,12 @@
         url_username: "{{ lookup('ansible.builtin.env', 'CONTROLLER_USERNAME') }}"
         url_password: "{{ lookup('ansible.builtin.env', 'CONTROLLER_PASSWORD') }}"
         force_basic_auth: true
+        use_proxy: false
         validate_certs: >-
           {{ lookup('ansible.builtin.env', 'CONTROLLER_VERIFY_SSL') | default('true', true) | bool }}
         status_code: 200
         return_content: false
+      check_mode: false
       no_log: true
 
   tasks:

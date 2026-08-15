@@ -1,14 +1,18 @@
+CONTROLLER_NO_PROXY ?= localhost,127.0.0.1,awx.nima.local,.nima.local,awx-server-1
+
 SHELL := /bin/bash
 COLLECTION_DIR := collections/ansible_collections/nima/platform
 INVENTORY ?= inventories/lab/hosts.yml
 EE_IMAGE ?= nima-platform-ee:1.0.0
 PROJECT_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-CONTROLLER_ENV := ANSIBLE_CONFIG=$(PROJECT_ROOT)/ansible.cfg ANSIBLE_COLLECTIONS_PATH=$(PROJECT_ROOT)/collections ANSIBLE_COLLECTIONS_SCAN_SYS_PATH=false
+CONTROLLER_ENV := ANSIBLE_CONFIG=$(PROJECT_ROOT)/ansible.cfg ANSIBLE_COLLECTIONS_PATH=$(PROJECT_ROOT)/collections ANSIBLE_COLLECTIONS_SCAN_SYS_PATH=false \
+	NO_PROXY=$(CONTROLLER_NO_PROXY) \
+	no_proxy=$(CONTROLLER_NO_PROXY)
 
 .PHONY: deps controller-deps controller-version controller-doctor static inventory lint yaml-lint syntax controller-syntax validate build-collection build-ee awx-plan awx-apply site bootstrap baseline docker nginx observability clean
 
 deps:
-	ansible-galaxy collection install -r collections/requirements.yml --force
+	ansible-galaxy collection install -r collections/requirements-ee.yml --force
 
 controller-deps:
 	rm -rf $(PROJECT_ROOT)/collections/ansible_collections/awx/awx
@@ -30,7 +34,7 @@ lint:
 	ansible-lint playbooks $(COLLECTION_DIR)
 
 yaml-lint:
-	yamllint playbooks inventories collections/requirements.yml $(COLLECTION_DIR) execution-environment.yml
+	yamllint playbooks inventories collections/requirements-ee.yml collections/requirements-controller.yml $(COLLECTION_DIR) execution-environment.yml
 
 syntax:
 	@for f in playbooks/*.yml; do \

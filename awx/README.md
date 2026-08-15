@@ -82,6 +82,6 @@ execute and fails if the selected `controller_api.py` still contains the old
 `/api/v2/tokens/` authentication flow.
 
 The same pinned `awx.awx` Git dependency is also present in
-`collections/requirements.yml`, so AWX Project Sync installs a matching controller
+`collections/requirements-ee.yml`, so AWX Project Sync installs a matching controller
 collection for `AWX Controller Reconcile` jobs instead of silently falling back to
 the collection baked into the generic AWX EE.

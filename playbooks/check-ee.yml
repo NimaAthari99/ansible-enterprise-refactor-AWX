@@ -40,5 +40,6 @@
           - "'community.general' in check_ee_collection_list.stdout"
           - "'ansible.posix' in check_ee_collection_list.stdout"
         fail_msg: >-
-          The Execution Environment/job dependency cache is missing community.general
-          or ansible.posix. Check the project collections/requirements.yml sync output.
+          The selected Execution Environment is missing community.general or ansible.posix.
+          These dependencies are intentionally baked into the EE from
+          collections/requirements-ee.yml and are not downloaded during AWX Project Sync.

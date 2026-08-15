@@ -9,7 +9,7 @@ The project was converted into an AWX-ready monorepo with a reusable Ansible Col
 - Migrated reusable roles into the `nima.platform` collection and standardized playbooks on FQCN role names.
 - Consolidated the lab inventory into `inventories/lab/hosts.yml` and added staging/production skeletons.
 - Separated reusable role defaults from environment-specific inventory data.
-- Removed vendored third-party collection content; external collections are declared in `collections/requirements.yml`.
+- Removed vendored third-party collection content; external collections are declared in `collections/requirements-ee.yml`.
 - Removed plaintext vault material from the generated repository and added AWX Custom Credential Type examples for service secrets.
 - Removed Git-managed SSH identity variables; AWX Machine Credentials are the intended SSH/become source.
 - Reworked Docker installation to avoid an unconditional OS upgrade and to keep insecure repository behavior opt-in.
@@ -46,3 +46,11 @@ The previous controller playbook attempted to read `awx/bootstrap-secrets.yml` w
 - Disabled collection scanning from Python `sys.path` in `ansible.cfg`.
 - Controller Make targets now force project-local collection resolution with `ANSIBLE_COLLECTIONS_PATH` and `ANSIBLE_COLLECTIONS_SCAN_SYS_PATH=false`.
 - This prevents stale system copies such as `/usr/lib/python3/dist-packages/ansible_collections/awx/awx` from being selected for controller-as-code.
+
+## v8: Decouple AWX Project Sync from Galaxy
+
+- Renamed `collections/requirements.yml` to `collections/requirements-ee.yml`.
+- `execution-environment.yml` now consumes the EE-only requirements file.
+- AWX Project Sync no longer has a `collections/requirements.yml` trigger, so source updates do not run `ansible-galaxy collection install`.
+- Third-party runtime dependencies (`community.general`, `ansible.posix`, and the matching `awx.awx`) are expected in the custom Execution Environment.
+- Added `docs/09-awx-project-sync-galaxy-cache.md` for the upstream `KeyError: 'results'` cache failure.

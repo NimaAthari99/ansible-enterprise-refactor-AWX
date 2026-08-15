@@ -3,6 +3,11 @@
 # Secret values belong in awx/bootstrap-secrets.yml (Ansible Vault encrypted).
 
 awx_organization_name: Default
+
+# Controller API is internal in this environment and must bypass outbound proxies.
+# Keep this list non-secret and include the controller FQDN/domain plus loopback names.
+awx_controller_no_proxy: "localhost,127.0.0.1,awx.nima.local,.nima.local,awx-server-1"
+
 awx_galaxy_credentials:
   - Ansible Galaxy
 

@@ -2,6 +2,9 @@
 
 This repository is an AWX-ready monorepo with a real Ansible Galaxy collection embedded beside thin control-plane playbooks and inventories.
 
+
+> **AWX dependency model:** third-party collections are baked into the Execution Environment from `collections/requirements-ee.yml`. This repository intentionally has no `collections/requirements.yml`, so an AWX Project Sync does not contact Galaxy.
+
 ## Layout
 
 ```text
@@ -51,3 +54,8 @@ AWX resources are now converged as code with `playbooks/awx-controller.yml` and 
 ## Security notice
 
 The uploaded source archive contained plaintext credentials. They were removed from this refactor and are not present in the generated repository. Treat those original values as compromised and rotate them before using this project. Deleting a secret from the current tree does not remove it from an existing Git history.
+
+
+### Controller API proxy bypass
+
+The AWX controller API is an internal endpoint. `awx/controller.yml` defines `awx_controller_no_proxy`, and the bootstrap/reconcile playbooks export both `NO_PROXY` and `no_proxy`. Their preflight `uri` request also uses `use_proxy: false` and is forced to run in check mode, so `make awx-plan` validates the real TLS/API path instead of silently skipping it.

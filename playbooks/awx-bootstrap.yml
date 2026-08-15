@@ -9,6 +9,10 @@
     awx_bootstrap_secrets_path: >-
       {{ awx_bootstrap_secrets_file | default(playbook_dir ~ '/../awx/bootstrap-secrets.yml', true) }}
 
+  environment:
+    NO_PROXY: "{{ awx_controller_no_proxy }}"
+    no_proxy: "{{ awx_controller_no_proxy }}"
+
   pre_tasks:
     - name: Check bootstrap secret file exists on the external runner
       ansible.builtin.stat:
@@ -49,10 +53,12 @@
         url_username: "{{ lookup('ansible.builtin.env', 'CONTROLLER_USERNAME') }}"
         url_password: "{{ lookup('ansible.builtin.env', 'CONTROLLER_PASSWORD') }}"
         force_basic_auth: true
+        use_proxy: false
         validate_certs: >-
           {{ lookup('ansible.builtin.env', 'CONTROLLER_VERIFY_SSL') | default('true', true) | bool }}
         status_code: 200
         return_content: false
+      check_mode: false
       no_log: true
 
     - name: Validate machine credential inputs

@@ -26,7 +26,7 @@ The playbooks contain targeting, rollout and role composition. Roles contain imp
 
 ## Why a monorepo first
 
-AWX can run project-adjacent collections, so this layout gives immediate development speed while preserving the normal Galaxy collection structure and FQCNs. When `nima.platform` is later published to Galaxy/Private Automation Hub, move the collection to its own repository and add `nima.platform` to `collections/requirements.yml`; playbooks do not need to change because they already use FQCNs.
+AWX can run project-adjacent collections, so this layout gives immediate development speed while preserving the normal Galaxy collection structure and FQCNs. When `nima.platform` is later published to Galaxy/Private Automation Hub, move the collection to its own repository and add `nima.platform` to `collections/requirements-ee.yml`; playbooks do not need to change because they already use FQCNs.
 
 ## Boundaries
 
