@@ -1,6 +1,9 @@
 ---
 version: 3
 
+build_arg_defaults:
+  ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: "--no-cache"
+
 images:
   base_image:
     name: registry.fedoraproject.org/fedora:42
@@ -8,12 +11,17 @@ images:
 dependencies:
   python_interpreter:
     package_system: python3
+
   ansible_core:
     package_pip: ansible-core==2.20.8
+
   ansible_runner:
     package_pip: ansible-runner==2.4.3
+
   galaxy: collections/requirements-ee.yml
+
   python: requirements-ee.txt
+
   system: bindep.txt
 
 options:
