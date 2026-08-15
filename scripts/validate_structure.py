@@ -53,6 +53,32 @@ for role in ROLE_ROOT.iterdir():
             if not (role / "tasks" / ref).exists():
                 fail(f"Task import: {path.relative_to(ROOT)} -> {ref} missing")
 
+# 4b. Static import_tasks references from top-level playbooks must exist.
+for path in (ROOT / "playbooks").glob("*.yml"):
+    text = path.read_text(encoding="utf-8")
+    for ref in import_ref.findall(text):
+        candidate = path.parent / ref
+        if not candidate.exists():
+            fail(f"Playbook task import: {path.relative_to(ROOT)} -> {ref} missing")
+
+# 4c. Do not use broad gitignore rules that hide operational YAML merely
+# because its filename contains 'secret'. These previously hid AWX task/schema
+# files from Git while leaving them present in local ZIPs.
+gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+for dangerous in ("**/*secret*.yml", "**/*secret*.yaml"):
+    if any(line.strip() == dangerous for line in gitignore.splitlines()):
+        fail(f"Dangerous .gitignore rule hides code/config files: {dangerous}")
+
+required_git_files = (
+    ROOT / "playbooks/tasks/awx-secret-credentials.yml",
+    ROOT / "awx/credential-types/platform-secrets-input.yml",
+    ROOT / "awx/credential-types/platform-secrets-injector.yml",
+    ROOT / "inventories/lab/group_vars/all/05_secrets.yml",
+)
+for required in required_git_files:
+    if not required.exists():
+        fail(f"Required tracked operational file missing: {required.relative_to(ROOT)}")
+
 # 5. Literal role template/file sources must exist.
 for role in ROLE_ROOT.iterdir():
     if not role.is_dir() or not (role / "tasks").exists():

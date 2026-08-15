@@ -14,6 +14,16 @@
     no_proxy: "{{ awx_controller_no_proxy }}"
 
   pre_tasks:
+    - name: Refuse to run the one-time bootstrap from inside an AWX job
+      ansible.builtin.assert:
+        that:
+          - not (playbook_dir is match('^/runner/project(?:/|$)'))
+        fail_msg: >-
+          playbooks/awx-bootstrap.yml is a one-time external bootstrap playbook and
+          must not run as an AWX Job Template. Run it from a trusted shell/CI runner
+          with the local bootstrap secret file. After bootstrap, run
+          playbooks/awx-controller.yml inside AWX with the AWX Self API credential.
+
     - name: Check bootstrap secret file exists on the external runner
       ansible.builtin.stat:
         path: "{{ awx_bootstrap_secrets_path }}"

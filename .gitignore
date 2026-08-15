@@ -8,20 +8,23 @@ artifacts/
 context/
 __pycache__/
 
-# Secrets must never be committed.
+# Secret DATA must never be committed. Do not ignore files merely because
+# their *name* contains "secret"; task files, credential schemas and safe
+# variable mappings legitimately use that word.
 **/vault.yml
 **/vault.yaml
-**/*secret*.yml
-**/*secret*.yaml
-!**/*secret*.example.yml
-!**/*secret*.example.yaml
+**/*.secrets.local.yml
+**/*.secrets.local.yaml
+**/*.secret.local.yml
+**/*.secret.local.yaml
 
-# Third-party Galaxy content is installed at runtime/CI, not vendored in Git.
+# Local AWX bootstrap secret inputs. The example/schema files remain tracked.
+awx/bootstrap-secrets.yml
+
+# Third-party Galaxy content is installed for local/controller tooling or
+# baked into the Execution Environment, not committed to Git.
 collections/ansible_collections/*
 !collections/ansible_collections/nima/
 collections/ansible_collections/nima/*
 !collections/ansible_collections/nima/platform/
 !collections/ansible_collections/nima/platform/**
-
-# Local encrypted AWX bootstrap secret inputs.
-awx/bootstrap-secrets.yml

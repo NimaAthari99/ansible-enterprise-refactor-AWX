@@ -54,3 +54,15 @@ The previous controller playbook attempted to read `awx/bootstrap-secrets.yml` w
 - AWX Project Sync no longer has a `collections/requirements.yml` trigger, so source updates do not run `ansible-galaxy collection install`.
 - Third-party runtime dependencies (`community.general`, `ansible.posix`, and the matching `awx.awx`) are expected in the custom Execution Environment.
 - Added `docs/09-awx-project-sync-galaxy-cache.md` for the upstream `KeyError: 'results'` cache failure.
+
+## v9: tracked AWX task files and bootstrap boundary
+
+- Removed broad `.gitignore` rules matching every `*secret*.yml`/`*.yaml` file.
+  Those rules incorrectly hid operational code such as
+  `playbooks/tasks/awx-secret-credentials.yml` and AWX credential schemas.
+- Secret *data* is now excluded with explicit/local naming conventions and the
+  one real bootstrap secret path remains ignored.
+- Added a bootstrap guard that refuses to run `awx-bootstrap.yml` under
+  `/runner/project`; bootstrap is external-only by design.
+- Extended structural validation to check top-level playbook `import_tasks`
+  targets and the required AWX operational files.
