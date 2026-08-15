@@ -1,34 +1,53 @@
 # Offline collection stage for the Execution Environment
 
-The EE build does not contact public Galaxy during the container build.
-Instead, pinned collection artifacts are staged first under
-`collections/vendor/` and `ansible-builder` installs them with
+The EE build does not contact public Galaxy during the container build. The
+vendor preparation step also avoids Galaxy entirely: it fetches pinned source
+revisions from GitHub, builds collection artifacts locally under
+`collections/vendor/`, and `ansible-builder` installs those artifacts with
 `ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=--offline`.
 
 ## Prepare artifacts
 
-Direct internet path:
+Direct GitHub path:
 
 ```bash
 make ee-vendor
 ```
 
-When this host must use ProxyChains:
+When this host must use ProxyChains for GitHub:
 
 ```bash
 EE_FETCH_PREFIX=proxychains4 make ee-vendor
 ```
 
-The vendor step downloads `community.general==13.3.0` and
-`ansible.posix==2.2.2`, clones AWX at commit `c0aedc6e3`, and builds the
-matching `awx.awx` collection tarball.
+The vendor step builds these exact artifacts:
+
+- `community.general==13.3.0`
+- `ansible.posix==2.2.2`
+- `community.library_inventory_filtering_v1==1.1.5`
+- `awx.awx` from AWX commit `c0aedc6e3`
+
+`community.general` 13.3.0 declares
+`community.library_inventory_filtering_v1 >= 1.0.0`. The helper collection is
+therefore pinned explicitly; otherwise an offline install would have an
+incomplete dependency graph.
+
+The public Galaxy API is not used in this workflow. If `ee-vendor` fails, test
+GitHub connectivity instead of Galaxy connectivity:
+
+```bash
+EE_FETCH_PREFIX=proxychains4 git ls-remote \
+  https://github.com/ansible-collections/community.general.git \
+  refs/tags/13.3.0
+```
 
 ## Build the EE
 
 ```bash
-make build-ee EE_IMAGE=nima-platform-ee:1.0.0
+make build-ee EE_IMAGE=nima-platform-ee:1.0.0 \
+  ANSIBLE_BUILDER=/opt/ansible-builder-venv/bin/ansible-builder
 ```
 
-The Galaxy stage now consumes only local tarballs. Network access may still be
+The Galaxy stage consumes only local tarballs. Network access may still be
 required for the base image, RPM packages, and Python packages unless those are
 also mirrored internally.

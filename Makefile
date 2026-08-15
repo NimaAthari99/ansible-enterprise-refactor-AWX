@@ -4,6 +4,8 @@ SHELL := /bin/bash
 COLLECTION_DIR := collections/ansible_collections/nima/platform
 INVENTORY ?= inventories/lab/hosts.yml
 EE_IMAGE ?= nima-platform-ee:1.0.0
+ANSIBLE_BUILDER ?= ansible-builder
+CONTAINER_RUNTIME ?= podman
 PROJECT_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 CONTROLLER_ENV := ANSIBLE_CONFIG=$(PROJECT_ROOT)/ansible.cfg ANSIBLE_COLLECTIONS_PATH=$(PROJECT_ROOT)/collections ANSIBLE_COLLECTIONS_SCAN_SYS_PATH=false \
 	NO_PROXY=$(CONTROLLER_NO_PROXY) \
@@ -56,12 +58,13 @@ ee-vendor:
 	./scripts/vendor_ee_collections.sh
 
 ee-vendor-check:
+	@test -f collections/vendor/community-library_inventory_filtering_v1-1.1.5.tar.gz || (echo "Missing vendored community.library_inventory_filtering_v1 artifact; run make ee-vendor"; exit 2)
 	@test -f collections/vendor/community-general-13.3.0.tar.gz || (echo "Missing vendored community.general artifact; run make ee-vendor"; exit 2)
 	@test -f collections/vendor/ansible-posix-2.2.2.tar.gz || (echo "Missing vendored ansible.posix artifact; run make ee-vendor"; exit 2)
 	@test -f collections/vendor/awx-awx-0.0.1-devel.tar.gz || (echo "Missing vendored awx.awx artifact; run make ee-vendor"; exit 2)
 
 build-ee: ee-vendor-check
-	ansible-builder build -f execution-environment.yml -t $(EE_IMAGE)
+	$(ANSIBLE_BUILDER) build -f execution-environment.yml -t $(EE_IMAGE) --container-runtime $(CONTAINER_RUNTIME) -v 3
 
 awx-plan: controller-doctor
 	$(CONTROLLER_ENV) ansible-playbook --check $(PROJECT_ROOT)/playbooks/awx-controller.yml $(ARGS)

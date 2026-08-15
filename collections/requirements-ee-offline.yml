@@ -2,6 +2,11 @@
 # Runtime collection artifacts are staged under collections/vendor before
 # ansible-builder runs. Paths are relative to /build in the Galaxy stage.
 collections:
+  # community.general 13.3.0 requires this helper collection (>=1.0.0).
+  # Pinning it explicitly keeps the offline dependency graph deterministic.
+  - name: vendor/community-library_inventory_filtering_v1-1.1.5.tar.gz
+    type: file
+
   - name: vendor/community-general-13.3.0.tar.gz
     type: file
 

@@ -62,12 +62,13 @@ The AWX controller API is an internal endpoint. `awx/controller.yml` defines `aw
 
 ## Reliable EE builds on proxied networks
 
-Public Galaxy is not contacted from inside the container build. Stage pinned
-collection artifacts first, then build:
+Public Galaxy is not contacted by the EE collection workflow. Pinned collection
+sources are fetched from GitHub, built into local artifacts, then installed
+offline inside the container build:
 
 ```bash
 EE_FETCH_PREFIX=proxychains4 make ee-vendor
-make build-ee EE_IMAGE=nima-platform-ee:1.0.0
+make build-ee EE_IMAGE=nima-platform-ee:1.0.0 ANSIBLE_BUILDER=/opt/ansible-builder-venv/bin/ansible-builder
 ```
 
 See `docs/11-offline-ee-collections.md`.

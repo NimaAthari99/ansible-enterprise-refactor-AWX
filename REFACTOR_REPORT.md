@@ -73,3 +73,12 @@ The EE collection stage now uses vendored tarballs plus `ansible-galaxy
 --offline`. This removes public Galaxy TLS/proxy instability from the container
 build itself. A helper script stages `community.general`, `ansible.posix`, and
 a commit-pinned `awx.awx` artifact before `ansible-builder` runs.
+
+
+## v12 EE vendoring hardening
+
+The EE vendor step no longer calls the public Galaxy API. It clones exact
+GitHub tags/commits and builds local collection artifacts. It also vendors
+`community.library_inventory_filtering_v1==1.1.5`, which is a declared runtime
+dependency of `community.general==13.3.0`, so the `--offline` collection install
+has a complete deterministic dependency graph.
