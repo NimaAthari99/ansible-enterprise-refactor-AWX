@@ -82,3 +82,12 @@ GitHub tags/commits and builds local collection artifacts. It also vendors
 `community.library_inventory_filtering_v1==1.1.5`, which is a declared runtime
 dependency of `community.general==13.3.0`, so the `--offline` collection install
 has a complete deterministic dependency graph.
+
+## v13 offline vendor hardening
+
+The AWX vendor fetch no longer tries to fetch the abbreviated commit ID as a
+remote Git ref. The exact AWX commit is pinned as
+`c0aedc6e37f453b885879717ca066397309e1c83`, and the vendor helper downloads the
+immutable GitHub codeload archive for that commit before building `awx.awx`.
+This avoids both the `couldn't find remote ref c0aedc6e3` failure and an
+unnecessary AWX history clone.

@@ -11,4 +11,4 @@ collections:
   # released collection that POSTs to the removed /api/v2/tokens/ endpoint.
   - name: git+https://github.com/ansible/awx.git#/awx_collection/
     type: git
-    version: c0aedc6e3
+    version: c0aedc6e37f453b885879717ca066397309e1c83

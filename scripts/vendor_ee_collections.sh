@@ -7,7 +7,7 @@ VENDOR_DIR="${ROOT}/collections/vendor"
 COMMUNITY_GENERAL_REF="13.3.0"
 ANSIBLE_POSIX_REF="2.2.2"
 INVENTORY_FILTER_REF="1.1.5"
-AWX_COMMIT="c0aedc6e3"
+AWX_COMMIT="c0aedc6e37f453b885879717ca066397309e1c83"
 
 # Set EE_FETCH_PREFIX=proxychains4 when this host needs ProxyChains for
 # outbound GitHub access. The vendor step intentionally never contacts
@@ -41,17 +41,30 @@ clone_tag() {
     "$url" "$dest"
 }
 
-clone_commit() {
-  local url="$1"
+download_github_commit_archive() {
+  local owner_repo="$1"
   local commit="$2"
   local dest="$3"
+  local archive
 
-  git init --quiet "$dest"
-  git -C "$dest" remote add origin "$url"
-  run_fetch git -C "$dest" fetch --quiet --depth 1 origin "$commit"
-  git -C "$dest" checkout --quiet --detach FETCH_HEAD
+  archive="$(mktemp "${TMP_DIR}/github-archive.XXXXXX.tar.gz")"
+  mkdir -p "$dest"
+
+  # The previous shallow fetch used an abbreviated object ID as if it were a
+  # remote ref and GitHub rejected it with "couldn't find remote ref". Use the
+  # exact immutable commit archive instead; this also avoids cloning AWX history.
+  run_fetch curl \
+    --fail \
+    --location \
+    --retry 4 \
+    --retry-all-errors \
+    --retry-delay 2 \
+    --connect-timeout 30 \
+    "https://codeload.github.com/${owner_repo}/tar.gz/${commit}" \
+    --output "$archive"
+
+  tar -xzf "$archive" -C "$dest" --strip-components=1
 }
-
 build_collection() {
   local source_dir="$1"
   local expected_artifact="$2"
@@ -71,6 +84,8 @@ build_collection() {
 
 need ansible-galaxy
 need git
+need curl
+need tar
 need mktemp
 need sha256sum
 
@@ -117,9 +132,9 @@ build_collection \
   "$TMP_DIR/community.library_inventory_filtering" \
   "community-library_inventory_filtering_v1-${INVENTORY_FILTER_REF}.tar.gz"
 
-printf '==> Fetching awx.awx from pinned AWX commit %s\n' "$AWX_COMMIT"
-clone_commit \
-  https://github.com/ansible/awx.git \
+printf '==> Fetching awx.awx from pinned AWX commit %.10s\n' "$AWX_COMMIT"
+download_github_commit_archive \
+  ansible/awx \
   "$AWX_COMMIT" \
   "$TMP_DIR/awx"
 build_collection \
