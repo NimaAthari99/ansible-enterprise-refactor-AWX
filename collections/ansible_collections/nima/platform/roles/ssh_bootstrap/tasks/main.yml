@@ -89,8 +89,7 @@
     mode: "0644"
     content: |
       [Socket]
-      ListenStream=
-      ListenStream={{ ssh_bootstrap_port }}
+      ListenStream={{ ansible_host }}:{{ ssh_bootstrap_port }}
   register: ssh_bootstrap_socket_override
   when: ansible_distribution == "Ubuntu"
 
