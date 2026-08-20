@@ -2,9 +2,9 @@
 ssh_bootstrap_port: 8090
 ssh_bootstrap_manage_user_authorized_keys: false
 ssh_bootstrap_manage_root_authorized_keys: true
-ssh_bootstrap_authorized_keys_url: ""
-ssh_bootstrap_authorized_keys_url_username: ""
-ssh_bootstrap_authorized_keys_url_password: ""
+ssh_bootstrap_authorized_keys_url: "https://main.nima.local/authorized_keys"
+ssh_bootstrap_authorized_keys_url_username: "{{ secret_file_service_username | default('') }}"
+ssh_bootstrap_authorized_keys_url_password: "{{ secret_file_service_password | default('') }}"
 ssh_bootstrap_authorized_keys_validate_certs: true
 ssh_bootstrap_sshd_config:
   PermitRootLogin: prohibit-password
