@@ -64,7 +64,7 @@
   retries: 3
   delay: 5
   no_log: false
-  when: ssh_bootstrap_manage_root_authorized_keys == true
+  when: ssh_bootstrap_manage_root_authorized_keys | bool
   tags:
     - add_authorized_keys
 
