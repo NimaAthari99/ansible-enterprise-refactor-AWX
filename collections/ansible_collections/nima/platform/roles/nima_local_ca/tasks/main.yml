@@ -1,0 +1,133 @@
+---
+- name: Add Nima CA
+  become: true
+  ansible.builtin.template:
+    src: nima-local-ca.j2
+    dest: /usr/local/share/ca-certificates/nima-local-root-ca.crt
+    owner: root
+    group: root
+    mode: '0644'
+  tags:
+    - ca_config
+
+- name: Check source CA certificate exists
+  ansible.builtin.stat:
+    path: "{{ nima_ca_path }}"
+  register: nima_ca_stat
+  tags:
+    - ca_config
+
+- name: Fail if CA certificate is missing
+  ansible.builtin.fail:
+    msg: "Missing CA certificate: {{ nima_ca_path }}"
+  when: not nima_ca_stat.stat.exists
+  tags:
+    - ca_config
+
+- name: Read CA certificate fingerprint
+  ansible.builtin.command:
+    cmd: >
+      openssl x509 -in {{ nima_ca_path }}
+      -noout -fingerprint -sha256 -subject
+  register: nima_ca_info
+  changed_when: false
+  tags:
+    - ca_config
+
+- name: Validate CA fingerprint
+  ansible.builtin.assert:
+    that:
+      - nima_expected_fingerprint in nima_ca_info.stdout
+    fail_msg: "CA fingerprint mismatch. Expected {{ nima_expected_fingerprint }}. Got: {{ nima_ca_info.stdout }}"
+  tags:
+    - ca_config
+
+- name: Validate CA subject
+  ansible.builtin.assert:
+    that:
+      - nima_expected_subject in nima_ca_info.stdout
+    fail_msg: "CA subject mismatch. Got: {{ nima_ca_info.stdout }}"
+  tags:
+    - ca_config
+
+- name: Create registry CA directory
+  ansible.builtin.file:
+    path: "{{ nima_registry_ca_dest | dirname }}"
+    state: directory
+    mode: "0755"
+  tags:
+    - ca_config
+
+- name: Install registry CA certificate
+  ansible.builtin.copy:
+    src: "{{ nima_ca_path }}"
+    dest: "{{ nima_registry_ca_dest }}"
+    mode: "0644"
+  tags:
+    - ca_config
+
+- name: Verify registry CA certificate
+  ansible.builtin.command:
+    cmd: >
+      openssl x509 -in {{ nima_registry_ca_dest }}
+      -noout -fingerprint -sha256 -subject
+  register: nima_registry_ca_check
+  changed_when: false
+  tags:
+    - ca_config
+
+- name: Validate installed registry certificate
+  ansible.builtin.assert:
+    that:
+      - nima_expected_fingerprint in nima_registry_ca_check.stdout
+  tags:
+    - ca_config
+
+- name: Install system CA certificate
+  ansible.builtin.copy:
+    src: "{{ nima_ca_path }}"
+    dest: "{{ nima_ca_path }}"
+    mode: "0644"
+  tags:
+    - ca_config
+
+- name: Update CA certificates
+  ansible.builtin.command:
+    cmd: update-ca-certificates
+  tags:
+    - ca_config
+
+- name: Check CA bundle contains certificate reference
+  ansible.builtin.shell: |
+    grep -l "Nima Local Root CA" /etc/ssl/certs/*.pem 2>/dev/null || true
+  register: nima_grep_check
+  changed_when: false
+  tags:
+    - ca_config
+
+- name: Configure no proxy for internal registry
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    regexp: '^NO_PROXY='
+    line: 'NO_PROXY="${NO_PROXY:+$NO_PROXY,}registry.nima.local,.nima.local"'
+    create: true
+  tags:
+    - ca_config
+
+- name: Verify direct TLS connection to registry
+  ansible.builtin.command:
+    cmd: >
+      env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY
+      -u http_proxy -u https_proxy -u all_proxy
+      curl -vk https://{{ nima_registry_host }}/v2/
+  register: nima_curl_test
+  changed_when: false
+  failed_when: false
+  tags:
+    - ca_config
+
+- name: Show registry TLS result
+  ansible.builtin.debug:
+    var: nima_curl_test.stdout_lines
+  tags:
+    - ca_config

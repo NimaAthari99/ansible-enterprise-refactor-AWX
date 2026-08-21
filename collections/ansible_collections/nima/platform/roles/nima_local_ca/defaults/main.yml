@@ -1,0 +1,7 @@
+---
+nima_ca_path: /usr/local/share/ca-certificates/nima-local-root-ca.crt
+nima_registry_host: registry.nima.local
+nima_registry_ca_dest: /etc/containers/certs.d/registry.nima.local/ca.crt
+
+nima_expected_fingerprint: "FE:B6:07:A0:41:D4:5C:C8:33:C1:F4:A2:39:9E:A6:47:E1:B0:0E:1C:EC:84:06:35:28:BC:27:22:D0:E6:38:77"
+nima_expected_subject: "C=IR, ST=Tehran, L=Tehran, O=Nima Lab, OU=Internal CA, CN=Nima Local Root CA"
