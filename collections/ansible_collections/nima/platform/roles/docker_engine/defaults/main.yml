@@ -10,8 +10,8 @@ docker_engine_repo_base_url: https://download.docker.com/linux/debian
 docker_engine_repo_distribution: "{{ ansible_distribution_release }}"
 docker_engine_repo_component: stable
 docker_engine_repo_architecture: amd64
-docker_engine_repo_allow_insecure: false
-docker_engine_validate_certs: true
+docker_engine_repo_allow_insecure: true
+docker_engine_validate_certs: false
 
 docker_engine_packages:
   - docker-ce
