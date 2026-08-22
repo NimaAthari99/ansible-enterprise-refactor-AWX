@@ -11,9 +11,8 @@ Protocol 2
 ListenAddress {{ ansible_host|default('0.0.0.0') }}
 
 # Authentication By Password
-PasswordAuthentication {{ sshd_config.PasswordAuthentication|default('no') }}
-PermitRootLogin {{ ssh_bootstrap_sshd_config.PermitRootLogin | default('prohibit-password') }}
 PasswordAuthentication {{ ssh_bootstrap_sshd_config.PasswordAuthentication | default('no') }}
+PermitRootLogin {{ ssh_bootstrap_sshd_config.PermitRootLogin | default('prohibit-password') }}
 MaxAuthTries 3
 MaxSessions 2
 KbdInteractiveAuthentication no
