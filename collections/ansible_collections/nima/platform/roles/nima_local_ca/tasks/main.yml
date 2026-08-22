@@ -59,10 +59,12 @@
     - ca_config
 
 - name: Install registry CA certificate
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: nima-local-ca.j2
     dest: "{{ nima_registry_ca_dest }}"
     mode: "0644"
+    owner: root
+    group: root
   tags:
     - ca_config
 
