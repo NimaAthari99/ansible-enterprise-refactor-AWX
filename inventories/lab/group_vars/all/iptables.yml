@@ -9,3 +9,5 @@ linux_baseline_iptables:
       - 192.168.250.35
     trusted_IP_range:
       - 192.168.250.0/24
+
+linux_baseline_manage_iptables: true

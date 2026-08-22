@@ -6,6 +6,5 @@ linux_baseline_ubuntu_release: "{{ ansible_distribution_release | default('stabl
 linux_baseline_sshd_config:
   Port: 22
 
-linux_baseline_manage_iptables: false
 linux_baseline_iptables_rules_file: /etc/iptables/rules.v4
 linux_baseline_iptables_extra_rules: []
