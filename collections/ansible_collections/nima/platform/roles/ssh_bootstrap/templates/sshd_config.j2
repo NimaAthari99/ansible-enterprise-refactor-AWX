@@ -1,17 +1,30 @@
 # Managed by Ansible - nima.platform.ssh_bootstrap
+# Nima SSH Config File
+
 Include /etc/ssh/sshd_config.d/*.conf
 
+# SSH Port
 Port {{ ssh_bootstrap_port }}
 Protocol 2
 
+# SSH Allowed Address
+ListenAddress {{ ansible_host|default('0.0.0.0') }}
+
+# Authentication By Password
+PasswordAuthentication {{ sshd_config.PasswordAuthentication|default('no') }}
 PermitRootLogin {{ ssh_bootstrap_sshd_config.PermitRootLogin | default('prohibit-password') }}
 PasswordAuthentication {{ ssh_bootstrap_sshd_config.PasswordAuthentication | default('no') }}
+MaxAuthTries 3
+MaxSessions 2
 KbdInteractiveAuthentication no
 UsePAM yes
 X11Forwarding no
 PrintMotd no
 AcceptEnv LANG LC_*
 Subsystem sftp /usr/lib/openssh/sftp-server
+
+# Public Key Authentication
+PubkeyAuthentication yes
 
 {% if ssh_bootstrap_sshd_config.AllowUsers is defined %}
 AllowUsers {{ ssh_bootstrap_sshd_config.AllowUsers }}

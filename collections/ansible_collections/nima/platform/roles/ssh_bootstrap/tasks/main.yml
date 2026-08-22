@@ -57,7 +57,7 @@
     url_username: "{{ ssh_bootstrap_authorized_keys_url_username if ssh_bootstrap_authorized_keys_url_username | length > 0 else omit }}"
     url_password: "{{ ssh_bootstrap_authorized_keys_url_password if ssh_bootstrap_authorized_keys_url_password | length > 0 else omit }}"
     force: true
-    # validate_certs: "{{ ssh_bootstrap_authorized_keys_validate_certs }}"
+    validate_certs: "{{ ssh_bootstrap_authorized_keys_validate_certs }}"
     timeout: 30
   register: ssh_bootstrap_root_keys_download
   until: ssh_bootstrap_root_keys_download is succeeded
