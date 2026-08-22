@@ -60,7 +60,7 @@
 
 - name: Install registry CA certificate
   ansible.builtin.template:
-    src: nima-local-ca.j2
+    src: "nima-local-ca.j2"
     dest: "{{ nima_registry_ca_dest }}"
     mode: "0644"
     owner: root
@@ -86,7 +86,7 @@
     - ca_config
 
 - name: Install system CA certificate
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: nima-local-ca.j2
     dest: "{{ nima_ca_path }}"
     mode: "0644"
