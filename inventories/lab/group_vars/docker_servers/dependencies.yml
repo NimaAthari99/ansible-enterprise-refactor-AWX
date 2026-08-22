@@ -4,6 +4,8 @@ docker_engine_dependencies:
   - curl
   - gnupg
   - git
+
+docker_engine_packages:
   - docker-ce
   - docker-ce-cli
   - containerd.io
