@@ -161,9 +161,6 @@
   ansible.builtin.set_fact:
     ansible_port: "{{ ssh_bootstrap_port }}"
 
-- name: Reset SSH connection
-  ansible.builtin.meta: reset_connection
-
 - name: Verify SSH key exists
   stat:
     path: /root/.ssh/authorized_keys
