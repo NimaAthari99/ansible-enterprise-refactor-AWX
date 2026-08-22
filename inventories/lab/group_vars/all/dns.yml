@@ -30,6 +30,18 @@ linux_baseline_hosts_entries:
                 ]
         }
     - {
+        ip: 192.168.250.36,
+        names: [
+                tools-server-2.nima.local, tools-2.nima.local,
+                web-tools-server-2.nima.local,
+                object-tools-server-2.nima.local,
+                api-object-tools-server-2.nima.local,
+                repo-2.nima.local, hub-2.nima.local, registry-2.nima.local,
+                ca-2.nima.local,
+                quay-2.nima.local, k8s-2.nima.local
+                ]
+        }
+    - {
         ip: 192.168.250.32,
         names: [
                 backup-server-1.nima.local, tools2.nima.local,

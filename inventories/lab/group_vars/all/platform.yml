@@ -5,6 +5,6 @@ linux_baseline_manage_apt_mirror: true
 linux_baseline_mirror_domain_name: repo.nima.local
 # The current lab mirror is configured as trusted/insecure. Replace this with a signed repo when possible.
 linux_baseline_allow_insecure_apt_mirror: true
-linux_baseline_upgrade_packages: false
+linux_baseline_upgrade_packages: true
 linux_baseline_manage_iptables: true
 linux_baseline_grub_install_device: /dev/sda

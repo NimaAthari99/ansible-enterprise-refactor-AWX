@@ -1,66 +1,11 @@
 ---
-linux_baseline_manage_root_bashrc: false
-linux_baseline_manage_apt_mirror: false
-linux_baseline_allow_insecure_apt_mirror: false
-linux_baseline_mirror_domain_name: repo.example.invalid
-linux_baseline_manage_apt_proxy: false
-linux_baseline_apt_proxy_address: ""
-linux_baseline_apt_proxy_port: 0
-linux_baseline_upgrade_packages: false
 
-linux_baseline_timezone: UTC
-linux_baseline_nameservers: []
-linux_baseline_dns: ""
-linux_baseline_fallback_dns: ""
-linux_baseline_dnssec: allow-downgrade
-linux_baseline_dns_over_tls: "no"
-linux_baseline_domain_name: localdomain
-linux_baseline_hosts_entries: []
-linux_baseline_hosts_allow_entries: []
-linux_baseline_fail2ban_ignoreip:
-  - 127.0.0.1/8
-  - ::1
 linux_baseline_debian_release: "{{ ansible_distribution_release | default('stable') }}"
 linux_baseline_ubuntu_release: "{{ ansible_distribution_release | default('stable') }}"
 
-linux_baseline_packages: []
 linux_baseline_sshd_config:
   Port: 22
+
 linux_baseline_manage_iptables: false
 linux_baseline_iptables_rules_file: /etc/iptables/rules.v4
 linux_baseline_iptables_extra_rules: []
-linux_baseline_iptables:
-  network_adapter_access: []
-  tcp_port_access: []
-  udp_port_access: []
-  trusted_IP: []
-  trusted_IP_range: []
-
-linux_baseline_timeout_seconds: 600
-linux_baseline_fail2ban:
-  bantime: 10m
-  findtime: 10m
-  maxretry: 5
-linux_baseline_limit_nofile_hard: 1024
-linux_baseline_limit_nofile_soft: 512
-linux_baseline_limit_nproc_hard: 1024
-linux_baseline_limit_nproc_soft: 512
-linux_baseline_sysctl: {}
-
-linux_baseline_auditd_apply_audit_rules: false
-linux_baseline_auditd_action_mail_acct: root
-linux_baseline_auditd_admin_space_left_action: suspend
-linux_baseline_auditd_disk_error_action: suspend
-linux_baseline_auditd_disk_full_action: suspend
-linux_baseline_auditd_max_log_file: 8
-linux_baseline_auditd_max_log_file_action: keep_logs
-linux_baseline_auditd_mode: 1
-linux_baseline_auditd_num_logs: 5
-linux_baseline_auditd_space_left: 75
-linux_baseline_auditd_space_left_action: email
-linux_baseline_grub_audit_backlog_cmdline: audit_backlog_limit=8192
-linux_baseline_grub_audit_cmdline: audit=1
-linux_baseline_grub_install_device: ""
-
-linux_baseline_manage_lynis: false
-linux_baseline_lynis_git_version: "3.1.5"
