@@ -36,7 +36,8 @@
     owner: root
     group: root
     mode: '0644'
-    validate_certs: "{{ docker_engine_validate_certs }}"
+    # validate_certs: "{{ docker_engine_validate_certs }}"
+    validate_certs: "false"
 
 - name: Configure Docker APT repository
   become: true
