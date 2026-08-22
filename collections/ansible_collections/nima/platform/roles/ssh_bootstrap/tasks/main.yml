@@ -148,6 +148,10 @@
     - ansible_distribution == "Ubuntu"
     - ssh_bootstrap_socket_override is changed
 
+- name: Verify SSH key exists
+  stat:
+    path: /root/.ssh/authorized_keys
+
 - name: Wait for the new SSH port from the controller
   ansible.builtin.wait_for:
     host: "{{ ansible_host | default(inventory_hostname) }}"
@@ -160,7 +164,3 @@
 - name: Switch connection to the new SSH port
   ansible.builtin.set_fact:
     ansible_port: "{{ ssh_bootstrap_port }}"
-
-- name: Verify SSH key exists
-  stat:
-    path: /root/.ssh/authorized_keys
