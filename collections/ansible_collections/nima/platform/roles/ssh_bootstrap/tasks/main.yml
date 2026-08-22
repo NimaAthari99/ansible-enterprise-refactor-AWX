@@ -164,5 +164,15 @@
 - name: Reset SSH connection
   ansible.builtin.meta: reset_connection
 
-- name: Verify connection on the new SSH port
-  ansible.builtin.ping:
+# - name: Verify connection on the new SSH port
+#   ansible.builtin.ping:
+
+- name: Verify SSH key access
+  delegate_to: localhost
+  ansible.builtin.command:
+    cmd: >
+      ssh
+      -i /runner/artifacts/id_ed25519
+      -p 8090
+      root@{{ inventory_hostname }}
+      hostname
