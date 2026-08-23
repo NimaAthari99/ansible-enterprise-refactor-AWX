@@ -4,6 +4,8 @@ linux_baseline_iptables:
         - lo
     udp_port_access: []
     trusted_IP:
+      - 192.168.252.20
+      - 192.168.252.35
       - 192.168.250.19
       - 192.168.250.20
       - 192.168.250.35
@@ -11,3 +13,6 @@ linux_baseline_iptables:
       - 192.168.250.0/24
 
 linux_baseline_manage_iptables: true
+linux_baseline_sshd_config:
+  Port: 8090
+linux_baseline_iptables_rules_file: /etc/iptables/rules.v4
