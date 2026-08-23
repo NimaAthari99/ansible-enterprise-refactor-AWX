@@ -7,8 +7,9 @@ linux_baseline_dns_over_tls: opportunistic
 
 # Name Servers
 linux_baseline_nameservers:
-    - 192.168.250.1
-    - 192.168.250.31
+    - 8.8.8.8
+    - 192.168.252.10
+    - 192.168.252.31
     - 10.0.0.1
     - 192.168.56.1
 
