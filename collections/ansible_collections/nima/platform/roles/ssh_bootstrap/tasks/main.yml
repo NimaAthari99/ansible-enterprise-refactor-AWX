@@ -1,4 +1,7 @@
 ---
+- set_fact:
+    ansible_port: 22
+
 - name: Ensure user SSH directory exists
   ansible.builtin.file:
     path: "/home/{{ ansible_user }}/.ssh"
