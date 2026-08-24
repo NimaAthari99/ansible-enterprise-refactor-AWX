@@ -1,6 +1,13 @@
 ---
-- set_fact:
+- name: Change ansible port variable 
+  set_fact:
     ansible_port: 22
+
+- name: Reset SSH connection
+  meta: reset_connection
+
+- name: Test new connection
+  ping:
 
 - name: Ensure user SSH directory exists
   ansible.builtin.file:
