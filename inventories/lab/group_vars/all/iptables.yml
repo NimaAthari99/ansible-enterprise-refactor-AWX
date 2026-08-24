@@ -14,5 +14,6 @@ linux_baseline_iptables:
 
 linux_baseline_manage_iptables: true
 linux_baseline_sshd_config:
-  Port: 8090
+  Old_Port: 22
+  New_Port: 8090
 linux_baseline_iptables_rules_file: /etc/iptables/rules.v4

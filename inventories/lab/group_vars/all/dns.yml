@@ -70,7 +70,8 @@ linux_baseline_hosts_entries:
       names:
         - awx-server-1.nima.local
         - awx.nima.local
-        - awx1.nima.local ansible-1.nima.local
+        - awx1.nima.local
+        - ansible-1.nima.local
     - ip: 192.168.252.41
       names:
         - elk-server-1.nima.local
@@ -150,7 +151,7 @@ linux_baseline_hosts_entries:
         - web3.nima.local
         - web-3.nima.local
         - apache2-server-1.nima.local
-        - apache2-1.nima.local,
+        - apache2-1.nima.local
         - pod-web-server-3.nima.local
         - pod-nginx-server-3.nima.local
         - node-web-server-3.nima.local
@@ -162,12 +163,12 @@ linux_baseline_hosts_entries:
         - web4.nima.local
         - web-4.nima.local
         - traefik-server-1.nima.local
-        - traefik-1.nima.local,
+        - traefik-1.nima.local
         - pod-web-server-4.nima.local
         - pod-nginx-server-4.nima.local
         - node-web-server-4.nima.local
         - node-nginx-server-4.nima.local
-    - ip: 192.168.252.65,
+    - ip: 192.168.252.65
       names:
         - nginx-server-4.nima.local
         - web-server-4.nima.local
