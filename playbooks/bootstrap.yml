@@ -1,13 +1,4 @@
 ---
-- name: Bootstrap Privileged Access
-  hosts: "{{ target_hosts | default('managed_linux') }}"
-  gather_facts: false
-  become: false
-  serial: 1
-  roles:
-    - role: nima.platform.privileged_access
-      tags: [bootstrap, access]
-
 - name: Migrate `SSH` Safely
   hosts: "{{ target_hosts | default('managed_linux') }}"
   gather_facts: true
@@ -17,3 +8,12 @@
   roles:
     - role: nima.platform.ssh_bootstrap
       tags: [bootstrap, ssh]
+
+- name: Bootstrap Privileged Access
+  hosts: "{{ target_hosts | default('managed_linux') }}"
+  gather_facts: false
+  become: false
+  serial: 1
+  roles:
+    - role: nima.platform.privileged_access
+      tags: [bootstrap, access]
