@@ -1,7 +1,7 @@
 ---
 - name: Change ansible port variable 
   set_fact:
-    ansible_port: 8090
+    ansible_port: 22
 
 - name: Get existing users
   ansible.builtin.getent:
