@@ -86,6 +86,11 @@
     group: root
     mode: "0644"
 
+- name: Gather Facts
+  gather_facts: true
+  set_fact:
+    ansible_port: 22
+
 - name: Create SSH socket override directory on Ubuntu
   ansible.builtin.file:
     path: /etc/systemd/system/ssh.socket.d
