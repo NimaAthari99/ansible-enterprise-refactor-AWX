@@ -9,7 +9,7 @@
     depth: 1
     force: true
     update: true
-  tags: lynis-config-config
+  tags: lynis-config
 
 - name: Lynis | Set base ownership
   ansible.builtin.file:
@@ -17,7 +17,7 @@
     owner: root
     group: root
     recurse: true
-  tags: lynis-config-config
+  tags: lynis-config
 
 - name: Lynis | Set directory permissions (755)
   ansible.builtin.file:

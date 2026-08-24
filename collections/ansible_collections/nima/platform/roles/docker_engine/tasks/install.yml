@@ -1,5 +1,5 @@
 ---
-- name: Ensure APT keyring directory exists
+- name: Ensure `APT keyring` Directory Exists
   become: true
   ansible.builtin.file:
     path: /etc/apt/keyrings
@@ -7,6 +7,9 @@
     owner: root
     group: root
     mode: '0755'
+  tags:
+    - docker_apt_key-install
+    - docker-install
 
 - name: Configure insecure APT policy when explicitly requested
   become: true

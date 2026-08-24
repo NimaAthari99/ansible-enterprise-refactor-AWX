@@ -1,13 +1,17 @@
 ---
-- name: Change ansible port variable 
+- name: Change Ansible Port Variable 
   set_fact:
     ansible_port: 22
+  tags:
+    - priviledged_access-config
 
-- name: Get existing users
+- name: Get `Existing users`
   ansible.builtin.getent:
     database: passwd
+  tags:
+    - priviledged_access-config
 
-- name: Add sudoers file for privileged users
+- name: Add `sudoers` File For Privileged Users
   ansible.builtin.copy:
     dest: "/etc/sudoers.d/{{ privileged_access_user }}"
     content: "{{ privileged_access_user }} ALL=(ALL) NOPASSWD:ALL\n"
@@ -20,6 +24,8 @@
     loop_var: privileged_access_user
   when: privileged_access_user in ansible_facts.getent_passwd
   become: true
+  tags:
+    - priviledged_access-config
 
 - name: Add sudoers file for privileged users
   ansible.builtin.copy:
@@ -33,9 +39,15 @@
   loop_control:
     loop_var: privileged_access_user
   become: true
+  tags:
+    - priviledged_access-config
 
 - name: Reset SSH connection after sudo changes
   ansible.builtin.meta: reset_connection
+  tags:
+    - priviledged_access-config
 
 - name: Verify connection after sudo changes
   ansible.builtin.ping:
+  tags:
+    - priviledged_access-config

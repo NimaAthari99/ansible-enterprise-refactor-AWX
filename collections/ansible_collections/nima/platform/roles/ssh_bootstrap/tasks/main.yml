@@ -2,12 +2,21 @@
 - name: Change ansible port variable 
   set_fact:
     ansible_port: 22
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-change_ansible_port
 
 - name: Reset SSH connection
   meta: reset_connection
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-reset_connection
 
 - name: Test new connection
   ping:
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-test_connection
 
 - name: Ensure user SSH directory exists
   ansible.builtin.file:
@@ -17,6 +26,9 @@
     group: "{{ ansible_user }}"
     mode: "0700"
   when: ssh_bootstrap_manage_user_authorized_keys | bool
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Ensure root SSH directory exists
   ansible.builtin.file:
@@ -26,6 +38,9 @@
     group: root
     mode: "0700"
   when: ssh_bootstrap_manage_root_authorized_keys | bool
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Validate authorized keys source configuration
   ansible.builtin.assert:
@@ -35,6 +50,9 @@
       ssh_bootstrap_authorized_keys_url must be set when authorized_keys management is enabled.
   when:
     - ssh_bootstrap_manage_user_authorized_keys | bool or ssh_bootstrap_manage_root_authorized_keys | bool
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Download authorized keys for remote user
   ansible.builtin.get_url:
@@ -55,6 +73,8 @@
   no_log: true
   when: ssh_bootstrap_manage_user_authorized_keys | bool
   tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
     - add_authorized_keys
 
 - name: Download authorized keys for root
@@ -76,6 +96,8 @@
   no_log: false
   when: ssh_bootstrap_manage_root_authorized_keys | bool
   tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
     - add_authorized_keys
 
 - name: Copy SSH banner
@@ -85,12 +107,18 @@
     owner: root
     group: root
     mode: "0644"
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Gather only required facts
   ansible.builtin.setup:
     gather_subset:
       - "!all"
       - "distribution"
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Create SSH socket override directory on Ubuntu
   ansible.builtin.file:
@@ -100,6 +128,9 @@
     group: root
     mode: "0755"
   when: ansible_distribution == "Ubuntu"
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Configure SSH socket port on Ubuntu
   ansible.builtin.copy:
@@ -113,6 +144,9 @@
       ListenStream={{ ansible_host }}:{{ ssh_bootstrap_port }}
   register: ssh_bootstrap_socket_override
   when: ansible_distribution == "Ubuntu"
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Reload systemd configuration after SSH socket change
   ansible.builtin.systemd_service:
@@ -120,11 +154,17 @@
   when:
     - ansible_distribution == "Ubuntu"
     - ssh_bootstrap_socket_override is changed
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Check whether UFW exists
   ansible.builtin.stat:
     path: /usr/sbin/ufw
   register: ssh_bootstrap_ufw_binary
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Open new SSH port in UFW
   community.general.ufw:
@@ -132,6 +172,9 @@
     port: "{{ ssh_bootstrap_port }}"
     proto: tcp
   when: ssh_bootstrap_ufw_binary.stat.exists
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Open new SSH port in iptables
   ansible.builtin.iptables:
@@ -141,6 +184,9 @@
     jump: ACCEPT
     comment: Ansible SSH migration
   when: not ssh_bootstrap_ufw_binary.stat.exists
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Deploy SSH daemon configuration
   ansible.builtin.template:
@@ -151,9 +197,15 @@
     mode: "0600"
     validate: /usr/sbin/sshd -t -f %s
   notify: Restart SSH service
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Flush SSH service handler
   ansible.builtin.meta: flush_handlers
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Restart SSH socket on Ubuntu
   ansible.builtin.systemd_service:
@@ -163,10 +215,16 @@
   when:
     - ansible_distribution == "Ubuntu"
     - ssh_bootstrap_socket_override is changed
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Verify SSH key exists
   stat:
     path: /root/.ssh/authorized_keys
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Wait for the new SSH port from the controller
   ansible.builtin.wait_for:
@@ -176,7 +234,13 @@
     state: started
   delegate_to: localhost
   become: false
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Switch connection to the new SSH port
   ansible.builtin.set_fact:
     ansible_port: "{{ ssh_bootstrap_port }}"
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config

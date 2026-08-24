@@ -72,6 +72,12 @@ linux_baseline_hosts_entries:
         - awx.nima.local
         - awx1.nima.local
         - ansible-1.nima.local
+    - ip: 192.168.252.37
+      names:
+        - semaphore-server-1.nima.local
+        - semaphore.nima.local
+        - semaphore1.nima.local
+        - ansible-2.nima.local
     - ip: 192.168.252.41
       names:
         - elk-server-1.nima.local
