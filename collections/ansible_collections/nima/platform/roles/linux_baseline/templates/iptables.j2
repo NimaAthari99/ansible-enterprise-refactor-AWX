@@ -45,8 +45,8 @@ COMMIT
 
 # Allow SSH Only From Trusted IPs
 {% for ip in linux_baseline_iptables.trusted_IP | default([]) %}
--A CHECK_INPUT -p tcp -m tcp --dport {{ linux_baseline_sshd_config.Old_Port | default('22') }} -s {{ ip }} -j ACCEPT -m comment --comment "SSH Allowed IP"
--A CHECK_INPUT -p tcp -m tcp --dport {{ linux_baseline_sshd_config.New_Port | default('22') }} -s {{ ip }} -j ACCEPT -m comment --comment "SSH Allowed IP"
+-A CHECK_INPUT -p tcp -m tcp --dport {{ linux_baseline_sshd_config.Port | default('22') }} -s {{ ip }} -j ACCEPT -m comment --comment "SSH Allowed IP"
+
 {% endfor %}
 
 # Add Custome Rules
