@@ -86,10 +86,11 @@
     group: root
     mode: "0644"
 
-- name: Gather Facts
-  gather_facts: true
-  set_fact:
-    ansible_port: 22
+- name: Gather only required facts
+  ansible.builtin.setup:
+    gather_subset:
+      - "!all"
+      - "distribution"
 
 - name: Create SSH socket override directory on Ubuntu
   ansible.builtin.file:
