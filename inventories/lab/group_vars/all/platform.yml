@@ -1,4 +1,6 @@
 ---
+# Apt proxy varible for enabling `apt_proxy`
+apt_proxy: false
 # Lab policy. These choices are deliberately inventory-scoped, not role defaults.
 linux_baseline_manage_root_bashrc: true
 linux_baseline_manage_apt_mirror: true

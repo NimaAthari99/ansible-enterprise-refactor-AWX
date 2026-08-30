@@ -1,0 +1,121 @@
+---
+- name: Validate supported platform
+  ansible.builtin.assert:
+    that:
+      - ansible_system == 'Linux'
+      - ansible_os_family in ['Debian', 'Ubuntu', 'RedHat']
+    fail_msg: "zsh_setup currently supports Debian/Ubuntu and RedHat-family Linux."
+  when: zsh_setup_enabled | bool
+
+- name: Install Zsh dependencies on Debian family
+  ansible.builtin.apt:
+    name:
+      - zsh
+      - git
+      - curl
+    state: present
+    force_apt_get: true
+    update_cache: true
+  when:
+    - zsh_setup_enabled | bool
+    - ansible_os_family == 'Debian'
+  tags:
+    - install_zsh
+    - config_zsh
+
+- name: Install Zsh dependencies on RedHat family
+  ansible.builtin.dnf:
+    name:
+      - zsh
+      - git
+      - curl
+    state: present
+  when:
+    - zsh_setup_enabled | bool
+    - ansible_os_family == 'RedHat'
+
+- name: Read target user account
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ zsh_setup_user }}"
+  when: zsh_setup_enabled | bool
+
+- name: Set target user paths
+  ansible.builtin.set_fact:
+    zsh_setup_home: "{{ ansible_facts.getent_passwd[zsh_setup_user][4] }}"
+    zsh_setup_group: "{{ ansible_facts.getent_passwd[zsh_setup_user][2] }}"
+  when: zsh_setup_enabled | bool
+
+- name: Install Oh My Zsh
+  ansible.builtin.git:
+    repo: "{{ zsh_setup_oh_my_zsh_repo }}"
+    dest: "{{ zsh_setup_home }}/.oh-my-zsh"
+    version: "{{ zsh_setup_oh_my_zsh_version }}"
+    depth: 1
+    update: true
+  become: true
+  become_user: "{{ zsh_setup_user }}"
+  when:
+    - zsh_setup_enabled | bool
+    - zsh_setup_install_oh_my_zsh | bool
+
+- name: Install custom Oh My Zsh plugins
+  ansible.builtin.git:
+    repo: "{{ item.value }}"
+    dest: "{{ zsh_setup_home }}/.oh-my-zsh/custom/plugins/{{ item.key }}"
+    depth: 1
+    update: true
+  loop: "{{ zsh_setup_custom_plugins | dict2items }}"
+  become: true
+  become_user: "{{ zsh_setup_user }}"
+  when:
+    - zsh_setup_enabled | bool
+    - zsh_setup_install_oh_my_zsh | bool
+
+- name: Install zsh-syntax-highlighting
+  ansible.builtin.git:
+    repo: "{{ zsh_setup_syntax_highlighting_repo }}"
+    dest: "{{ zsh_setup_home }}/.zsh-syntax-highlighting"
+    depth: 1
+    update: true
+  become: true
+  become_user: "{{ zsh_setup_user }}"
+  when:
+    - zsh_setup_enabled | bool
+    - zsh_setup_syntax_highlighting | bool
+
+- name: Create Zsh configuration directory
+  ansible.builtin.file:
+    path: "{{ zsh_setup_home }}/.zsh"
+    state: directory
+    owner: "{{ zsh_setup_user }}"
+    group: "{{ zsh_setup_group }}"
+    mode: '0750'
+  when: zsh_setup_enabled | bool
+
+- name: Deploy aliases
+  ansible.builtin.template:
+    src: zsh_aliases.j2
+    dest: "{{ zsh_setup_home }}/.zsh/.zsh_aliases"
+    owner: "{{ zsh_setup_user }}"
+    group: "{{ zsh_setup_group }}"
+    mode: '0640'
+  when: zsh_setup_enabled | bool
+
+- name: Deploy .zshrc
+  ansible.builtin.template:
+    src: zshrc.j2
+    dest: "{{ zsh_setup_home }}/.zshrc"
+    owner: "{{ zsh_setup_user }}"
+    group: "{{ zsh_setup_group }}"
+    mode: '0644'
+    backup: true
+  when: zsh_setup_enabled | bool
+
+- name: Set Zsh as default shell
+  ansible.builtin.user:
+    name: "{{ zsh_setup_user }}"
+    shell: /bin/zsh
+  when:
+    - zsh_setup_enabled | bool
+    - zsh_setup_set_default_shell | bool

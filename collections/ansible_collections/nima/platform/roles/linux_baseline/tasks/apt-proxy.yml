@@ -4,6 +4,7 @@
   ansible.builtin.file:
     state: absent
     path: /etc/apt/apt.conf.d/01proxy
+  when: apt_proxy == true
   tags: apt_proxy-config
 
 - name: Set `Nima Apt Proxy`
@@ -13,6 +14,7 @@
     mode: '0644'
     owner: root
     group: root
+  when: apt_proxy == true
   tags: apt_proxy-config
 
 ...

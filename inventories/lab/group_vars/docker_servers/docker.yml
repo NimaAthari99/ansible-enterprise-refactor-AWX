@@ -8,10 +8,20 @@ docker_engine_log_max_file: "5"
 docker_engine_log_max_size: "100m"
 docker_engine_registry_mirror: https://repo.nima.local
 
+# For Internal Repo
+docker_engine_private_repo_base_url: false
 docker_engine_repo_base_url: https://repo.nima.local/repository/debian-docker
-docker_engine_repo_distribution: trixie
+docker_engine_repo_distribution: resolute
 docker_engine_repo_component: stable
 docker_engine_repo_architecture: amd64
+
+# For Public Repo (If internal was not stable)
+docker_engine_public_repo_base_url: true
+docker_engine_repo_base_url: https://download.docker.com/linux/ubuntu
+docker_engine_repo_distribution: resolute
+docker_engine_repo_component: stable
+docker_engine_repo_architecture: arm64
+
 # Keep this true only if the internal mirror is intentionally unsigned/untrusted.
 docker_engine_repo_allow_insecure: true
 docker_engine_validate_certs: true

@@ -1,0 +1,27 @@
+# Managed by Ansible - nima.platform.zsh_setup
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="{{ zsh_setup_theme }}"
+plugins=({{ zsh_setup_plugins | join(' ') }})
+
+{% if zsh_setup_install_oh_my_zsh | bool %}
+source "$ZSH/oh-my-zsh.sh"
+{% endif %}
+
+if [[ -f "$HOME/.zsh/.zsh_aliases" ]]; then
+  source "$HOME/.zsh/.zsh_aliases"
+fi
+
+{% if zsh_setup_syntax_highlighting | bool %}
+if [[ -f "$HOME/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+  source "$HOME/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+{% endif %}
+
+setopt HIST_SAVE_NO_DUPS
+setopt SHARE_HISTORY
+setopt INC_APPEND_HISTORY
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=10000
+SAVEHIST=10000
+
+zstyle ':omz:update' mode reminder

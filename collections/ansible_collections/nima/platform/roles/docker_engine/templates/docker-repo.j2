@@ -1,1 +1,2 @@
-deb [arch={{ docker_engine_repo_architecture }} signed-by=/etc/apt/keyrings/docker.asc{% if docker_engine_repo_allow_insecure %} trusted=yes{% endif %}] {{ docker_engine_repo_base_url }} {{ docker_engine_repo_distribution }} {{ docker_engine_repo_component }}
+#deb [arch={{ docker_engine_repo_architecture }} signed-by=/etc/apt/keyrings/docker.asc{% if docker_engine_repo_allow_insecure %} trusted=yes{% endif %}] {{ docker_engine_repo_base_url }} {{ docker_engine_repo_distribution }} {{ docker_engine_repo_component }}
+deb [arch=arm64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu resolute stable

@@ -1,0 +1,24 @@
+---
+argument_specs:
+  main:
+    short_description: Install and configure Zsh and Oh My Zsh
+    options:
+      zsh_setup_enabled:
+        type: bool
+        default: true
+      zsh_setup_user:
+        type: str
+      zsh_setup_theme:
+        type: str
+        default: ys
+      zsh_setup_set_default_shell:
+        type: bool
+        default: true
+      zsh_setup_install_oh_my_zsh:
+        type: bool
+        default: true
+      zsh_setup_plugins:
+        type: list
+        elements: str
+      zsh_setup_aliases:
+        type: dict

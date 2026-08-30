@@ -1,0 +1,4 @@
+# Managed by Ansible - nima.platform.zsh_setup
+{% for name, command in zsh_setup_aliases.items() %}
+alias {{ name }}={{ command | quote }}
+{% endfor %}

@@ -20,24 +20,11 @@
 
 - name: Ensure user SSH directory exists
   ansible.builtin.file:
-    path: "/home/{{ ansible_user }}/.ssh"
+    path: "$HOME/.ssh"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0700"
-  when: ssh_bootstrap_manage_user_authorized_keys | bool
-  tags:
-    - ssh_bootstrap
-    - ssh_bootstrap-config
-
-- name: Ensure root SSH directory exists
-  ansible.builtin.file:
-    path: /root/.ssh
-    state: directory
-    owner: root
-    group: root
-    mode: "0700"
-  when: ssh_bootstrap_manage_root_authorized_keys | bool
   tags:
     - ssh_bootstrap
     - ssh_bootstrap-config
@@ -48,39 +35,14 @@
       - ssh_bootstrap_authorized_keys_url | length > 0
     fail_msg: >-
       ssh_bootstrap_authorized_keys_url must be set when authorized_keys management is enabled.
-  when:
-    - ssh_bootstrap_manage_user_authorized_keys | bool or ssh_bootstrap_manage_root_authorized_keys | bool
   tags:
     - ssh_bootstrap
     - ssh_bootstrap-config
 
-- name: Download authorized keys for remote user
+- name: Download authorized keys for remote users from `https://main.nima.local`
   ansible.builtin.get_url:
     url: "{{ ssh_bootstrap_authorized_keys_url }}"
-    dest: "/home/{{ ansible_user }}/.ssh/authorized_keys"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: "0600"
-    url_username: "{{ ssh_bootstrap_authorized_keys_url_username if ssh_bootstrap_authorized_keys_url_username | length > 0 else omit }}"
-    url_password: "{{ ssh_bootstrap_authorized_keys_url_password if ssh_bootstrap_authorized_keys_url_password | length > 0 else omit }}"
-    force: true
-    validate_certs: "{{ ssh_bootstrap_authorized_keys_validate_certs }}"
-    timeout: 30
-  register: ssh_bootstrap_user_keys_download
-  until: ssh_bootstrap_user_keys_download is succeeded
-  retries: 3
-  delay: 5
-  no_log: true
-  when: ssh_bootstrap_manage_user_authorized_keys | bool
-  tags:
-    - ssh_bootstrap
-    - ssh_bootstrap-config
-    - add_authorized_keys
-
-- name: Download authorized keys for root
-  ansible.builtin.get_url:
-    url: "{{ ssh_bootstrap_authorized_keys_url }}"
-    dest: /root/.ssh/authorized_keys
+    dest: "$HOME/.ssh/authorized_keys"
     owner: root
     group: root
     mode: "0600"
@@ -89,16 +51,30 @@
     force: true
     validate_certs: "{{ ssh_bootstrap_authorized_keys_validate_certs }}"
     timeout: 30
-  register: ssh_bootstrap_root_keys_download
-  until: ssh_bootstrap_root_keys_download is succeeded
+  register: ssh_bootstrap_keys_download
+  until: ssh_bootstrap_keys_download is succeeded
   retries: 3
   delay: 5
   no_log: false
-  when: ssh_bootstrap_manage_root_authorized_keys | bool
+  when: ssh_bootstrap_manage_authorized_keys | bool
   tags:
     - ssh_bootstrap
     - ssh_bootstrap-config
     - add_authorized_keys
+
+- name: Add `authorized_keys` To Remote User
+  ansible.builtin.template:
+    src: authorized_keys.j2
+    dest: "$HOME/.ssh/authorized_keys"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0600"
+  when: ssh_bootstrap_add_authorized_keys_file | bool
+
+  notify: Restart SSH service
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
 
 - name: Copy SSH banner
   ansible.builtin.copy:
