@@ -1,15 +1,4 @@
 ---
-- name: Test Become
-  hosts: wordpress-server-1
-  become: true
-  become_method: sudo
-  tasks:
-    - name: check user
-      command: whoami
-      register: output
-    - debug:
-        var: output.stdout
-
 - name: Change Ansible Port & User Variable 
   set_fact:
     ansible_port: 22
