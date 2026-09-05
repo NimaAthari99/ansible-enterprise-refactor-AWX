@@ -6,6 +6,21 @@
   tags:
     - priviledged_access-config
 
+- name: Test Become
+  hosts: wordpress-server-1
+
+  become: true
+  become_method: sudo
+
+  tasks:
+
+    - name: check user
+      command: whoami
+      register: output
+
+    - debug:
+        var: output.stdout
+
 - name: Get `Existing users`
   ansible.builtin.getent:
     database: passwd
