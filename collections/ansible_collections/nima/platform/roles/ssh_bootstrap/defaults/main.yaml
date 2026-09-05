@@ -1,4 +1,6 @@
 ---
+ssh_bootstrap_target_user: nima
+ssh_bootstrap_target_home: "/home/{{ ssh_bootstrap_target_user }}"
 ssh_bootstrap_port: 8090
 ssh_bootstrap_manage_authorized_keys: false
 ssh_bootstrap_manage_authorized_keys: false
