@@ -2,7 +2,7 @@
 - name: Change Ansible Port & User Variable 
   set_fact:
     ansible_port: 22
-    ansible_user: nima
+    # ansible_user: nima
   tags:
     - priviledged_access-config
 
