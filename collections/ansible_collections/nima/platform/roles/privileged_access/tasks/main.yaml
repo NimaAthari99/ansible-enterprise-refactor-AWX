@@ -1,7 +1,8 @@
 ---
-- name: Change Ansible Port Variable 
+- name: Change Ansible Port & User Variable 
   set_fact:
     ansible_port: 22
+    ansible_user: nima
   tags:
     - priviledged_access-config
 
@@ -23,21 +24,6 @@
   loop_control:
     loop_var: privileged_access_user
   when: privileged_access_user in ansible_facts.getent_passwd
-  become: true
-  tags:
-    - priviledged_access-config
-
-- name: Add sudoers file for privileged users
-  ansible.builtin.copy:
-    dest: "/etc/sudoers.d/{{ privileged_access_user }}"
-    content: "{{ privileged_access_user }} ALL=(ALL) NOPASSWD:ALL\n"
-    owner: root
-    group: root
-    mode: "0440"
-    validate: visudo -cf %s
-  loop: "{{ privileged_access_sudo_users }}"
-  loop_control:
-    loop_var: privileged_access_user
   become: true
   tags:
     - priviledged_access-config

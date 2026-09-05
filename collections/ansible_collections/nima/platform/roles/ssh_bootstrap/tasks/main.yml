@@ -2,6 +2,7 @@
 - name: Change ansible port variable 
   set_fact:
     ansible_port: 22
+    ansible_user: nima
   tags:
     - ssh_bootstrap
     - ssh_bootstrap-change_ansible_port

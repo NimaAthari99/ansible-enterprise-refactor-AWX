@@ -1,6 +1,8 @@
 ---
 zsh_setup_enabled: true
-zsh_setup_user: "{{ ansible_user | default('root') }}"
+zsh_setup_users:
+  - root
+  - nima
 zsh_setup_theme: ys
 zsh_setup_set_default_shell: true
 zsh_setup_install_oh_my_zsh: true

@@ -1,2 +1,4 @@
 ---
-privileged_access_sudo_users: []
+privileged_access_sudo_users: 
+  - nima
+  - root
