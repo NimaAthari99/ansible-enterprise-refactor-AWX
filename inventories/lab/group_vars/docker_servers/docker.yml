@@ -20,7 +20,7 @@ docker_engine_public_repo_base_url: true
 docker_engine_repo_base_url: https://download.docker.com/linux/ubuntu
 docker_engine_repo_distribution: resolute
 docker_engine_repo_component: stable
-docker_engine_repo_architecture: arm64
+docker_engine_repo_architecture: amd64
 
 # Keep this true only if the internal mirror is intentionally unsigned/untrusted.
 docker_engine_repo_allow_insecure: true
