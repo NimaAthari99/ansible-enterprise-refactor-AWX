@@ -34,7 +34,7 @@
 - name: Download Private Docker repository signing key
   become: true
   ansible.builtin.get_url:
-    url: "{{ docker_engine_repo_base_url }}/gpg"
+    url: "{{ docker_engine_repo_private_base_url }}/gpg"
     dest: /etc/apt/keyrings/docker.asc
     owner: root
     group: root
@@ -46,7 +46,7 @@
 - name: Download Public Docker repository signing key
   become: true
   ansible.builtin.get_url:
-    url: "{{ docker_engine_public_repo_base_url }}/gpg"
+    url: "{{ docker_engine_repo_public_base_url }}/gpg"
     dest: /etc/apt/keyrings/docker.asc
     owner: root
     group: root
