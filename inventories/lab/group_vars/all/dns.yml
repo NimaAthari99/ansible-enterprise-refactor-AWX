@@ -185,3 +185,79 @@ linux_baseline_hosts_entries:
         - pod-nginx-server-4.nima.local
         - node-web-server-4.nima.local
         - node-nginx-server-4.nima.local
+    - ip: 192.168.252.66
+      names:
+        - wordpress-server-2
+        - wordpress-server-2.nima.local
+        - wordpress-2.nima.local,
+        - wp-2.nima.local,
+        - wp2.nima.local,
+        - web-server-7.nima.local
+        - web7.nima.local
+        - web-7.nima.local
+    - ip: 192.168.252.67
+      names:
+        - wordpress-server-3
+        - wordpress-server-3.nima.local
+        - wordpress-3.nima.local,
+        - wp-3.nima.local,
+        - wp3.nima.local,
+        - web-server-7.nima.local
+        - web7.nima.local
+        - web-7.nima.local
+    - ip: 192.168.252.68
+      names:
+        - wordpress-server-1
+        - wordpress-server-1.nima.local
+        - wordpress-1.nima.local,
+        - wp-1.nima.local,
+        - wp1.nima.local,
+        - web-server-6.nima.local
+        - web6.nima.local
+        - web-6.nima.local
+    - ip: 192.168.252.81
+      names:
+        - database-server-1.nima.local
+        - database-1.nima.local
+        - database-server-1
+    - ip: 192.168.252.82
+      names:
+        - database-server-2.nima.local
+        - database-2.nima.local
+        - database-server-2
+    - ip: 192.168.252.83
+      names:
+        - database-server-3.nima.local
+        - database-3.nima.local
+        - database-server-3
+    - ip: 192.168.252.91
+      names:
+        - database-proxy-server-1.nima.local
+        - database-proxy-1.nima.local
+        - database-proxy-server-1
+    - ip: 192.168.252.92
+      names:
+        - database-proxy-server-2.nima.local
+        - database-proxy-2.nima.local
+        - database-proxy-server-2
+    - ip: 192.168.252.93
+      names:
+        - database-proxy-server-3.nima.local
+        - database-proxy-3.nima.local
+        - database-proxy-server-3
+    - ip: 192.168.252.101
+      names:
+        - loadbalancer-server-1.nima.local
+        - loadbalancer-1.nima.local
+        - loadbalancer-server-1
+    - ip: 192.168.252.102
+      names:
+        - loadbalancer-server-2.nima.local
+        - loadbalancer-2.nima.local
+        - loadbalancer-server-2
+    - ip: 192.168.252.111
+      names:
+        - registry-server-1.nima.local
+        - reg1.nima.local
+        - reg-1.nima.local
+        - registry-server-1
