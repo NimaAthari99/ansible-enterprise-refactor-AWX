@@ -13,6 +13,7 @@
       - zsh
       - git
       - curl
+      - fzf
     state: present
     force_apt_get: true
     update_cache: true
@@ -29,6 +30,7 @@
       - zsh
       - git
       - curl
+      - fzf
     state: present
   when:
     - zsh_setup_enabled | bool
