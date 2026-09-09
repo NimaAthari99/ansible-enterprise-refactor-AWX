@@ -23,3 +23,9 @@ zsh_setup_aliases:
   check_dns: "ping google.com"
   gac: "git add ."
   gcni: "git commit -m"
+zsh_setup_autosuggestions_enabled: true
+zsh_setup_autosuggestions_strategy:
+  - history
+  - completion
+zsh_setup_autosuggestions_highlight_style: "fg=8"
+zsh_setup_completion_menu: true

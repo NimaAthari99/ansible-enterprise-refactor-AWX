@@ -1,15 +1,51 @@
 # Managed by Ansible - nima.platform.zsh_setup
+
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="{{ zsh_setup_theme }}"
+
 plugins=({{ zsh_setup_plugins | join(' ') }})
+
+# ------------------------------------------------------------
+# ZSH AUTOSUGGESTIONS
+# Must be configured BEFORE Oh My Zsh loads the plugin
+# ------------------------------------------------------------
+
+{% if 'zsh-autosuggestions' in zsh_setup_plugins %}
+ZSH_AUTOSUGGEST_STRATEGY=({{ zsh_setup_autosuggestions_strategy | join(' ') }})
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='{{ zsh_setup_autosuggestions_highlight_style }}'
+{% endif %}
+
+# ------------------------------------------------------------
+# OH MY ZSH
+# ------------------------------------------------------------
 
 {% if zsh_setup_install_oh_my_zsh | bool %}
 source "$ZSH/oh-my-zsh.sh"
 {% endif %}
 
+# ------------------------------------------------------------
+# COMPLETION
+# ------------------------------------------------------------
+
+{% if zsh_setup_completion_menu | bool %}
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list \
+  'm:{a-zA-Z}={A-Za-z}' \
+  'r:|[._-]=* r:|=*'
+{% endif %}
+
+# ------------------------------------------------------------
+# ALIASES
+# ------------------------------------------------------------
+
 if [[ -f "$HOME/.zsh/.zsh_aliases" ]]; then
   source "$HOME/.zsh/.zsh_aliases"
 fi
+
+# ------------------------------------------------------------
+# SYNTAX HIGHLIGHTING
+# Keep this near the end of .zshrc
+# ------------------------------------------------------------
 
 {% if zsh_setup_syntax_highlighting | bool %}
 if [[ -f "$HOME/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
@@ -17,11 +53,22 @@ if [[ -f "$HOME/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
 fi
 {% endif %}
 
+# ------------------------------------------------------------
+# HISTORY
+# ------------------------------------------------------------
+
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=50000
+
 setopt HIST_SAVE_NO_DUPS
 setopt SHARE_HISTORY
 setopt INC_APPEND_HISTORY
-HISTFILE="$HOME/.zsh_history"
-HISTSIZE=10000
-SAVEHIST=10000
+setopt HIST_IGNORE_DUPS
+setopt HIST_FIND_NO_DUPS
+
+# ------------------------------------------------------------
+# OH MY ZSH UPDATE
+# ------------------------------------------------------------
 
 zstyle ':omz:update' mode reminder
