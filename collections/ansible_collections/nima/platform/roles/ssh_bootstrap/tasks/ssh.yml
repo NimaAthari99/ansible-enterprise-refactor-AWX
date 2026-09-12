@@ -6,7 +6,7 @@
   tags:
     - ssh_bootstrap
     - ssh_bootstrap-change_ansible_port
----
+
 - name: Verify SSH listen interface exists
   ansible.builtin.assert:
     that:
