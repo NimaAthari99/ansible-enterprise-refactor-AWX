@@ -4,6 +4,6 @@
   tags: [ssh_bootstrap, dns]
 
 - name: Configure resolver
-  ansible.builtin.import_tasks: resssholvedconf.yml
+  ansible.builtin.import_tasks: ssh.yml
   tags: [ssh_bootstrap, ssh]
 
