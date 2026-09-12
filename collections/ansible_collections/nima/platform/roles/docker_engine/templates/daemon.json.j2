@@ -4,5 +4,6 @@
     "max-file": "{{ docker_engine_log_max_file }}",
     "max-size": "{{ docker_engine_log_max_size }}"
   }{% if docker_engine_registry_mirror | length > 0 %},
-  "registry-mirrors": ["{{ docker_engine_registry_mirror }}"]{% endif %}
+  "registry-mirrors": ["{{ docker_engine_registry_mirror }}"],{% endif %}
+  "insecure-registries": ["registry.nima.local","hub.nima.local","repo.nima.local","reg.nima.local"]
 }

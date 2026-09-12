@@ -1,4 +1,4 @@
 [Service]
 Environment="HTTP_PROXY={{ docker_engine_http_proxy }}"
 Environment="HTTPS_PROXY={{ docker_engine_https_proxy }}"
-Environment="NO_PROXY={{ docker_engine_no_proxy }}"
+Environment="NO_PROXY=["registry.nima.local","hub.nima.local","repo.nima.local","reg.nima.local"]
