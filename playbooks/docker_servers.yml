@@ -1,9 +1,9 @@
 ---
-- name: Import `Bootstrap` Playbook
-  ansible.builtin.import_playbook: bootstrap.yml
-
 - name: Import `Baseline` Playbook
   ansible.builtin.import_playbook: baseline.yml
+
+- name: Import `Bootstrap` Playbook
+  ansible.builtin.import_playbook: bootstrap.yml
 
 - name: Import `Zsh` Playbook
   ansible.builtin.import_playbook: zsh.yml
