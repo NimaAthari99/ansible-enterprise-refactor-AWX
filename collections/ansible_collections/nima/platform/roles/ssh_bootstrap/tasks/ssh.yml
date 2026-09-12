@@ -7,6 +7,79 @@
     - ssh_bootstrap
     - ssh_bootstrap-change_ansible_port
 
+- name: Resolve Ansible host from AWX execution environment
+  ansible.builtin.command:
+    cmd: "getent ahostsv4 {{ ansible_host }}"
+  delegate_to: localhost
+  register: ssh_dns_resolution
+  changed_when: false
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
+
+- name: Extract DNS IPv4 address
+  ansible.builtin.set_fact:
+    ssh_dns_address: "{{ ssh_dns_resolution.stdout_lines[0].split()[0] }}"
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
+
+- name: Verify DNS record matches SSH interface address
+  ansible.builtin.assert:
+    that:
+      - ssh_dns_address == ssh_listen_address
+    fail_msg: |
+      DNS mismatch detected.
+
+      Host: {{ ansible_host }}
+      DNS address: {{ ssh_dns_address }}
+      Interface: {{ ssh_listen_interface }}
+      Interface address: {{ ssh_listen_address }}
+
+      Refusing to modify SSH configuration.
+    success_msg: >-
+      DNS {{ ansible_host }} resolves to {{ ssh_dns_address }},
+      matching {{ ssh_listen_interface }}.
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
+
+- name: Verify SSH listen interface exists
+  ansible.builtin.assert:
+    that:
+      - ssh_listen_interface is defined
+      - ssh_listen_interface in ansible_facts['interfaces']
+      - ansible_facts[ssh_listen_interface] is defined
+      - ansible_facts[ssh_listen_interface]['ipv4'] is defined
+      - ansible_facts[ssh_listen_interface]['ipv4']['address'] is defined
+    fail_msg: >-
+      Interface '{{ ssh_listen_interface | default("undefined") }}'
+      does not exist or does not have an IPv4 address on
+      {{ inventory_hostname }}.
+    success_msg: >-
+      Interface {{ ssh_listen_interface }} exists and has IPv4 address
+      {{ ansible_facts[ssh_listen_interface]['ipv4']['address'] }}
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
+
+- name: Set SSH listen address from selected interface
+  ansible.builtin.set_fact:
+    ssh_listen_address: "{{ ansible_facts[ssh_listen_interface]['ipv4']['address'] }}"
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
+
+- name: Show SSH listen interface and address
+  ansible.builtin.debug:
+    msg:
+      - "SSH interface: {{ ssh_listen_interface }}"
+      - "SSH listen address: {{ ssh_listen_address }}"
+      - "Ansible connection host: {{ ansible_host }}"
+  tags:
+    - ssh_bootstrap
+    - ssh_bootstrap-config
+
 - name: Ensure user SSH directory exists
   ansible.builtin.file:
     path: "{{ ssh_bootstrap_target_home }}/.ssh"

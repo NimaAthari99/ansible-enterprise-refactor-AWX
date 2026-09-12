@@ -8,7 +8,7 @@ Port {{ ssh_bootstrap_port }}
 Protocol 2
 
 # SSH Allowed Address
-ListenAddress {{ ansible_host|default('0.0.0.0') }}
+ListenAddress {{ ssh_listen_address|default('0.0.0.0') }}
 
 # Authentication By Password
 PasswordAuthentication {{ ssh_bootstrap_sshd_config.PasswordAuthentication | default('no') }}

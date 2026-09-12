@@ -8,6 +8,7 @@ linux_baseline_hosts_allow_entries:
     - { service: sshd, source: main.nima.local }
     - { service: sshd, source: runner-server-1.nima.local }
     - { service: sshd, source: awx-server-1.nima.local }
+ssh_listen_interface: enp0s9
 
 # Root Users
 privileged_access_sudo_users:
