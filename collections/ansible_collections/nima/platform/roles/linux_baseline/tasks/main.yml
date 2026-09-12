@@ -20,10 +20,6 @@
   tags: [baseline, apt]
   when: linux_baseline_manage_apt_proxy | bool
 
-- name: Configure resolver
-  ansible.builtin.import_tasks: resolvedconf.yml
-  tags: [baseline, dns]
-
 - name: Manage baseline packages
   ansible.builtin.import_tasks: packages.yml
   tags: [baseline, packages]

@@ -3,3 +3,16 @@
   ansible.builtin.service:
     name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
     state: restarted
+
+- name: Restart systemd-resolved
+  become: true
+  ansible.builtin.service:
+    name: systemd-resolved
+    state: restarted
+  when: ansible_facts.services is not defined or 'systemd-resolved.service' in ansible_facts.services
+
+- name: Restart systemd-journald
+  become: true
+  ansible.builtin.service:
+    name: systemd-journald
+    state: restarted
