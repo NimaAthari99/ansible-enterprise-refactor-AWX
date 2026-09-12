@@ -1,5 +1,5 @@
 ---
-
+ansible_port: 22
 linux_baseline_debian_release: "{{ ansible_distribution_release | default('stable') }}"
 linux_baseline_ubuntu_release: "{{ ansible_distribution_release | default('stable') }}"
 
