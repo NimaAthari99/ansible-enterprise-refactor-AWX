@@ -1,4 +1,16 @@
 ---
+- name: Gather network facts required by SSH bootstrap
+  ansible.builtin.setup:
+    gather_subset:
+      - "!all"
+      - "!min"
+      - network
+  tags:
+    - always
+    - ssh_bootstrap
+    - ssh_bootstrap-config
+    - ssh_bootstrap-change_ansible_port
+
 - name: Change ansible port variable 
   set_fact:
     ansible_port: 22
@@ -7,50 +19,81 @@
     - ssh_bootstrap
     - ssh_bootstrap-change_ansible_port
 
-- name: Verify SSH listen interface exists
+- name: Verify network interface facts are available
+  ansible.builtin.assert:
+    that:
+      - "'interfaces' in ansible_facts"
+    fail_msg: >-
+      Network interface facts were not gathered on {{ inventory_hostname }}.
+  tags:
+    - always
+    - ssh_bootstrap
+    - ssh_bootstrap-config
+
+
+- name: Verify configured SSH listen interface exists
   ansible.builtin.assert:
     that:
       - ssh_listen_interface is defined
+      - ssh_listen_interface | length > 0
       - ssh_listen_interface in ansible_facts['interfaces']
-      - ansible_facts[ssh_listen_interface] is defined
-      - ansible_facts[ssh_listen_interface]['ipv4'] is defined
-      - ansible_facts[ssh_listen_interface]['ipv4']['address'] is defined
-    fail_msg: >-
-      Interface '{{ ssh_listen_interface | default("undefined") }}'
-      does not exist or does not have an IPv4 address on
-      {{ inventory_hostname }}.
+    fail_msg: |
+      SSH listen interface is invalid.
+
+      Host: {{ inventory_hostname }}
+      Requested interface: {{ ssh_listen_interface | default('UNDEFINED') }}
+      Available interfaces: {{ ansible_facts['interfaces'] | default([]) }}
   tags:
+    - always
+    - ssh_bootstrap
+    - ssh_bootstrap-config
+
+
+- name: Verify selected interface has IPv4 address
+  ansible.builtin.assert:
+    that:
+      - ssh_listen_interface in ansible_facts
+      - "'ipv4' in ansible_facts[ssh_listen_interface]"
+      - "'address' in ansible_facts[ssh_listen_interface]['ipv4']"
+    fail_msg: |
+      Interface {{ ssh_listen_interface }} does not have a primary IPv4 address.
+  tags:
+    - always
     - ssh_bootstrap
     - ssh_bootstrap-config
 
 
 - name: Set SSH listen address from selected interface
   ansible.builtin.set_fact:
-    ssh_listen_address: >-
-      {{ ansible_facts[ssh_listen_interface]['ipv4']['address'] }}
+    ssh_listen_address: "{{ ansible_facts[ssh_listen_interface]['ipv4']['address'] }}"
   tags:
+    - always
     - ssh_bootstrap
     - ssh_bootstrap-config
 
 
-- name: Show selected SSH listen address
+- name: Show selected SSH network configuration
   ansible.builtin.debug:
     msg:
-      - "Interface = {{ ssh_listen_interface }}"
-      - "Listen IP = {{ ssh_listen_address }}"
-      - "Ansible host = {{ ansible_host }}"
+      inventory_hostname: "{{ inventory_hostname }}"
+      ansible_host: "{{ ansible_host }}"
+      ssh_interface: "{{ ssh_listen_interface }}"
+      ssh_listen_address: "{{ ssh_listen_address }}"
+      available_interfaces: "{{ ansible_facts['interfaces'] }}"
   tags:
+    - always
     - ssh_bootstrap
     - ssh_bootstrap-config
 
 
-- name: Resolve Ansible DNS hostname from execution environment
+- name: Resolve SSH DNS hostname
   ansible.builtin.command:
     cmd: "getent ahostsv4 {{ ansible_host }}"
   delegate_to: localhost
   register: ssh_dns_resolution
   changed_when: false
   tags:
+    - always
     - ssh_bootstrap
     - ssh_bootstrap-config
 
@@ -59,6 +102,7 @@
   ansible.builtin.set_fact:
     ssh_dns_address: "{{ ssh_dns_resolution.stdout_lines[0].split()[0] }}"
   tags:
+    - always
     - ssh_bootstrap
     - ssh_bootstrap-config
 
@@ -68,19 +112,18 @@
     that:
       - ssh_dns_address == ssh_listen_address
     fail_msg: |
-      DNS record does not match selected SSH interface.
+      DNS/IP mismatch detected.
 
-      Inventory host: {{ inventory_hostname }}
-      DNS hostname:   {{ ansible_host }}
-      DNS IP:         {{ ssh_dns_address }}
-
-      Interface:      {{ ssh_listen_interface }}
-      Interface IP:   {{ ssh_listen_address }}
+      Host:              {{ inventory_hostname }}
+      DNS name:          {{ ansible_host }}
+      DNS IP:            {{ ssh_dns_address }}
+      Interface:         {{ ssh_listen_interface }}
+      Interface IP:      {{ ssh_listen_address }}
     success_msg: >-
       DNS {{ ansible_host }} -> {{ ssh_dns_address }}
-      matches interface {{ ssh_listen_interface }} ->
-      {{ ssh_listen_address }}
+      matches {{ ssh_listen_interface }} -> {{ ssh_listen_address }}
   tags:
+    - always
     - ssh_bootstrap
     - ssh_bootstrap-config
 
