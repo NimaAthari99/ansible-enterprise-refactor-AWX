@@ -235,7 +235,7 @@
     content: |
       [Socket]
       ListenStream=
-      ListenStream={{ ansible_host }}:{{ ssh_bootstrap_port }}
+      ListenStream={{ ssh_listen_address }}:{{ ssh_bootstrap_port }}
   register: ssh_bootstrap_socket_override
   when: ansible_distribution == "Ubuntu"
   tags:
