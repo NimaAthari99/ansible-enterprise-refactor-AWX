@@ -1,11 +1,17 @@
 ---
-# Apt proxy varible for enabling `apt_proxy`
-apt_proxy: false
 # Lab policy. These choices are deliberately inventory-scoped, not role defaults.
 linux_baseline_manage_root_bashrc: true
+
+# Apt proxy varible for enabling `apt_proxy`
+apt_proxy: false
+
 linux_baseline_manage_apt_mirror: true
 linux_baseline_mirror_domain_name: repo.nima.local
+linux_baseline_debian_release: "{{ ansible_distribution_release | default('stable') }}"
+linux_baseline_ubuntu_release: "{{ ansible_distribution_ubuntu_release | default('stable') }}"
+ansible_distribution_ubuntu_release: "resolute"
 # The current lab mirror is configured as trusted/insecure. Replace this with a signed repo when possible.
 linux_baseline_allow_insecure_apt_mirror: true
 linux_baseline_upgrade_packages: false
+
 linux_baseline_grub_install_device: /dev/sda
