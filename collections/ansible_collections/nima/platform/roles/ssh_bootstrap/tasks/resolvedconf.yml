@@ -1,5 +1,19 @@
 ---
 
+- name: Gather minimal OS facts
+  ansible.builtin.setup:
+    gather_subset:
+      - "!all"
+      - "min"
+    filter:
+      - "ansible_distribution"
+      - "ansible_distribution_major_version"
+      - "ansible_os_family"
+  tags:
+    - always
+    - ssh_bootstrap
+    - resolvedconf
+
 - name: Configure `resolved.conf` File
   become: true
   ansible.builtin.template:
@@ -9,7 +23,7 @@
     mode: 0644
     owner: root
     group: root
-  when: ansible_distribution == "Ubuntu"
+  when: ansible_facts["distribution"] == "Ubuntu"
   notify:
     - Restart systemd-resolved
   tags:
