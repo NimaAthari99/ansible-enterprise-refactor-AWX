@@ -11,6 +11,7 @@
     group: root
   notify:
     - Restart systemd-resolved
+  when: ansible_distribution == "Ubuntu"
   tags:
     - resolved-config
 
