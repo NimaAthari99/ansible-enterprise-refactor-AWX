@@ -9,9 +9,9 @@
     mode: 0644
     owner: root
     group: root
+  when: ansible_distribution == "Ubuntu"
   notify:
     - Restart systemd-resolved
-  when: ansible_distribution == "Ubuntu"
   tags:
     - resolved-config
 
