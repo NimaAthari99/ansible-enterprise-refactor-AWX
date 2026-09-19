@@ -36,7 +36,8 @@ COMMIT
 
 # Allow Established Connections
 -A CHECK_INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
--A CHECK_INPUT -i enp0s8 -j ACCEPT
+# Allow All Input Connections From Specific Interface
+#-A CHECK_INPUT -i enp0s8 -j ACCEPT
 
 # Allow Specific Interfaces
 {% for net in linux_baseline_iptables.network_adapter_access | default([]) %}
@@ -44,7 +45,7 @@ COMMIT
 {% endfor %}
 
 # Allow SSH Only From Trusted IPs
-{% for ip in linux_baseline_iptables.trusted_IP | default([]) %}
+{% for ip in linux_baseline_iptables.trusted_ip | default([]) %}
 -A CHECK_INPUT -p tcp -m tcp --dport {{ linux_baseline_sshd_config.Port | default('22') }} -s {{ ip }} -j ACCEPT -m comment --comment "SSH Allowed IP"
 
 {% endfor %}
@@ -64,8 +65,14 @@ COMMIT
 -A CHECK_INPUT -p udp -m udp --dport {{ udp }} -j ACCEPT
 {% endfor %}
 
+# ICMP Allow
+#-A CHECK_INPUT -p icmp -s 192.168.252.20/32 -j ACCEPT
+{% for trusted_icmp_ip in linux_baseline_iptables.icmp_access | default([]) %}
+-A CHECK_INPUT -p icmp -s {{ trusted_icmp_ip }} -j ACCEPT -m comment --comment "ICMP Allowed For Trusted IPs"
+{% endfor %}
+
 # Trusted Ranges
-{% for range in linux_baseline_iptables.trusted_IP_range | default([]) %}
+{% for range in linux_baseline_iptables.trusted_ip_range | default([]) %}
 -A CHECK_INPUT -s {{ range }} -j ACCEPT -m comment --comment "Trusted Range"
 {% endfor %}
 

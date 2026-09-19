@@ -38,6 +38,7 @@
   when: ansible_distribution in ['Ubuntu', 'Debian']
   tags:
     - mirror_sources-config
+    - ubuntu_debian_apt_mirror-config
 
 - name: Set Unsecure `99insecure-nexus`
   ansible.builtin.template:
