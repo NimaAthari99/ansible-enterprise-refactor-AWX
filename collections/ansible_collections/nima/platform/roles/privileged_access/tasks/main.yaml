@@ -1,7 +1,7 @@
 ---
 - name: Change Ansible Port & User Variable 
   set_fact:
-    ansible_port: 8090
+    ansible_port: 22
   tags:
     - priviledged_access-config
 
