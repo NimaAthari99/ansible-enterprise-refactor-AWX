@@ -6,7 +6,7 @@ linux_baseline_iptables:
     trusted_ip:
       - 192.168.252.20
       - 192.168.252.35
-    trusted_ip_range:
+    # trusted_ip_range:
       #- 192.168.252.0/24
     icmp_access:
       - 192.168.252.20/32
